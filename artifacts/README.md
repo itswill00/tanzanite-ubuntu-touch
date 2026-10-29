@@ -6,11 +6,11 @@ Binaries are **not** stored in git. This directory holds only checksums and poin
 
 | Field | Value |
 | --- | --- |
-| File | `tanzanite-halium.zip` |
-| Size | 978636574 bytes (933 MiB) |
-| SHA-256 | `af2e481d53886e0948dfaa7f66665444aa47d39afe059ccb6feab83792431223` |
-| MD5 | `7387bdf9477e27012d46bba777a14261` |
-| Download | https://gofile.io/d/1q9X8v3Y |
+| File | `tanzanite-ut20.04-halium12-v1.1.0-20261029-b4e45b1.zip` |
+| Size | 978637422 bytes (933 MiB) |
+| SHA-256 | `99b429d6292f8220ed25065e1dd70dd6432447505dd04c4a8a681924cd1d9aca` |
+| MD5 | `23f604a1947f9cc29f07a31cd84bb889` |
+| Download | https://gofile.io/d/xkyY3FRJ |
 
 Rebuild it with `./scripts/build_zip_local.sh` (see `docs/BUILD_NOTES.md`).
 
