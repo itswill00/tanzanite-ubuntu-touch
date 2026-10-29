@@ -1,0 +1,6 @@
+id=tanzanite-sdcard-fix
+name=Tanzanite HyperOS SDCard Fix
+version=v1.0
+versionCode=100
+author=fxxyz73
+description=Disables FUSE-BPF to fix internal storage (/sdcard) mounting on Xiaomi HyperOS with decrypted ext4 userdata on Redmi Note 14 4G (tanzanite).

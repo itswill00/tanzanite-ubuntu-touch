@@ -1,0 +1,10 @@
+ro.product.vendor.brand=Redmi
+ro.product.vendor.device=tanzanite
+ro.product.manufacturer=Xiaomi
+ro.product.vendor.manufacturer=Xiaomi
+ro.product.model=Redmi Note 14 4G
+ro.product.vendor.model=Redmi Note 14 4G
+# Use Mali GLES directly instead of hacky/semi-broken MediaTek MEOW wrapper
+ro.hardware.egl=mali
+# Enable rear wide angle lens
+ro.odm.camera=1

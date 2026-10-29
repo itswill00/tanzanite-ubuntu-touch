@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# Wait for the property system to be up.
+while [ ! -e /dev/socket/property_service ]; do sleep 0.1; done
+
+# Wait for nvram to be loaded.
+while [ "$(getprop vendor.service.nvram_init)" != "Ready" ]; do sleep 0.2; done
+while [ "$(getprop vendor.mtk.nvram.ready)" != "1" ]; do sleep 0.2; done
+
+# enable Wi-Fi adapter in client mode
+while [ ! -e /dev/wmtWifi ]; do sleep 0.2; done
+echo P > /dev/wmtWifi
+
+# set wifi.interface property since urfkill.conf expects that
+setprop wifi.interface wlan0
+
+# Enable WoWLAN to avoid network disconnect before suspend
+while [ ! -e /sys/class/ieee80211/phy0 ]; do sleep 1; done
+iw phy phy0 wowlan enable magic-packet
+
+# enables wireless display support
+setprop debug.stagefright.c2inputsurface 1
+setprop ubuntu.widi.supported 1
+
+# Disable graphics.allocator service in Waydroid as it should use the host one
+if [ ! -e /var/lib/waydroid/overlay/vendor/etc/init/android.hardware.graphics.allocator@2.0-service.rc ]; then
+    mkdir -p /var/lib/waydroid/overlay/vendor/etc/init
+    ln -sf /dev/null /var/lib/waydroid/overlay/vendor/etc/init/android.hardware.graphics.allocator@2.0-service.rc
+fi
+
+# Fingerprint sensor now functional, undo originally shipped service mask from userdata-backed writable-path
+if [ -L /etc/systemd/system/biometryd.service ]; then
+    rm /etc/systemd/system/biometryd.service
+    systemctl daemon-reload
+    systemctl start biometryd
+
+    # Make sure it's also gone from the base rootfs in case of 20.04 delta update potentially not removing it
+    mkdir /tmp/rootfs
+    mount --bind / /tmp/rootfs
+    mount -o remount,rw /tmp/rootfs
+    rm /tmp/rootfs/etc/systemd/system/biometryd.service
+    umount /tmp/rootfs
+    rmdir /tmp/rootfs
+fi

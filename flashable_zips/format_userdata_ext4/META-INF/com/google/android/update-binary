@@ -1,0 +1,258 @@
+#!/sbin/sh
+# Tanzanite Format Userdata to ext4 (Recovery Flashable Zip)
+# Supports OrangeFox / TWRP recovery on Redmi Note 14 4G (MediaTek MT6789)
+# Wipes old F2FS superblocks & crypto signatures, formats to clean ext4, and initializes standard /data hierarchy
+
+if [ -n "$2" ] && [ -e "/proc/self/fd/$2" ]; then
+  OUTFD="/proc/self/fd/$2"
+  ui_print() {
+    echo "ui_print $1" >> "$OUTFD"
+    echo "ui_print" >> "$OUTFD"
+  }
+else
+  ui_print() {
+    echo "$1"
+  }
+fi
+
+WORK="/tmp/format_ext4_work"
+
+abort() {
+  ui_print "[!] ERROR: $1"
+  ui_print "[!] Aborting operation..."
+  rm -rf "$WORK" 2>/dev/null || true
+  exit 1
+}
+
+ui_print "=============================================="
+ui_print "  Redmi Note 14 4G (tanzanite) Ext4 Formatter "
+ui_print "  Format /data (userdata) to Clean ext4       "
+ui_print "  Dual-Boot / Ubuntu Touch / FBE Disable Tool "
+ui_print "  Author  : iprjkt                            "
+ui_print "  Telegram: @anotherside551                   "
+ui_print "=============================================="
+
+ZIPFILE="$3"
+rm -rf "$WORK"
+mkdir -p "$WORK/tools"
+
+# Extract bundled tools if running from zip
+if [ -n "$ZIPFILE" ] && [ -f "$ZIPFILE" ]; then
+  ui_print "[*] Extracting helper tools from zip..."
+  unzip -oq "$ZIPFILE" "tools/*" -d "$WORK" 2>/dev/null || true
+fi
+
+chmod -R 755 "$WORK/tools" 2>/dev/null || true
+export PATH="$WORK/tools:$PATH"
+
+# 1. Locate userdata block device
+ui_print "[*] Detecting userdata partition..."
+USERDATA_DEV=""
+
+for dev in \
+  /dev/block/by-name/userdata \
+  /dev/block/bootdevice/by-name/userdata \
+  /dev/block/platform/bootdevice/by-name/userdata \
+  /dev/block/platform/*/by-name/userdata \
+  /dev/block/mapper/userdata \
+  /dev/block/sdc75; do
+  if [ -b "$dev" ]; then
+    USERDATA_DEV=$(readlink -f "$dev" 2>/dev/null || echo "$dev")
+    break
+  fi
+done
+
+if [ -z "$USERDATA_DEV" ] || [ ! -b "$USERDATA_DEV" ]; then
+  abort "Could not find userdata block device!"
+fi
+
+ui_print "[+] Target block device: $USERDATA_DEV"
+
+# 2. Get partition capacity using 512-byte sectors (avoids 32-bit shell overflow)
+PART_SECTORS=$(blockdev --getsz "$USERDATA_DEV" 2>/dev/null || echo 0)
+if [ "$PART_SECTORS" -gt 0 ]; then
+  # 2048 sectors = 1 MB (1048576 bytes)
+  PART_MB=$(( PART_SECTORS / 2048 ))
+  PART_GB=$(( PART_MB / 1024 ))
+  ui_print "[*] Partition capacity : ${PART_GB} GB (${PART_MB} MB)"
+else
+  PART_MB=0
+  PART_SECTORS=0
+fi
+
+# 3. Kill processes and unmount all mountpoints referencing /data or userdata
+ui_print "[*] Ensuring partition is fully unmounted..."
+fuser -k -9 /data 2>/dev/null || true
+fuser -k -9 /sdcard 2>/dev/null || true
+fuser -k -9 "$USERDATA_DEV" 2>/dev/null || true
+
+umount -f -l /data/media/0 2>/dev/null || true
+umount -f -l /data/media 2>/dev/null || true
+umount -f -l /sdcard 2>/dev/null || true
+umount -f -l /data 2>/dev/null || true
+umount -f -l "$USERDATA_DEV" 2>/dev/null || true
+
+# Check /proc/mounts to ensure no active mounts remain
+if grep -q "$USERDATA_DEV" /proc/mounts 2>/dev/null; then
+  grep "$USERDATA_DEV" /proc/mounts | while read -r line; do
+    mp=$(echo "$line" | awk '{print $2}')
+    [ -n "$mp" ] && umount -f -l "$mp" 2>/dev/null || true
+  done
+fi
+
+# 4. Release device-mapper holders (dm-default-key, dm-crypt, dm-8, etc.)
+ui_print "[*] Releasing device-mapper holders..."
+dmctl delete userdata 2>/dev/null || true
+dmsetup remove userdata 2>/dev/null || true
+
+DEV_BASENAME=$(basename "$USERDATA_DEV")
+if [ -d "/sys/class/block/$DEV_BASENAME/holders" ]; then
+  for holder in /sys/class/block/"$DEV_BASENAME"/holders/*; do
+    [ -e "$holder" ] || continue
+    HOLDER_NAME=$(basename "$holder")
+    ui_print "    [*] Removing holder: $HOLDER_NAME"
+    dmsetup remove "$HOLDER_NAME" 2>/dev/null || dmctl delete "$HOLDER_NAME" 2>/dev/null || true
+  done
+fi
+
+sleep 1
+
+# Verify that no holders remain holding the raw partition
+ACTIVE_HOLDERS=$(ls /sys/class/block/"$DEV_BASENAME"/holders 2>/dev/null || true)
+if [ -n "$ACTIVE_HOLDERS" ]; then
+  abort "Target device $USERDATA_DEV is still held by: $ACTIVE_HOLDERS. Cannot format!"
+fi
+
+# 5. Erase legacy superblocks, crypto tokens, and filesystem signatures
+ui_print "[*] Erasing legacy superblocks & encryption metadata..."
+# Zero out first 32 MB
+dd if=/dev/zero of="$USERDATA_DEV" bs=1M count=32 conv=notrunc 2>/dev/null || true
+
+# Zero out last 32 MB (32 MB = 65536 sectors of 512 bytes)
+if [ "$PART_SECTORS" -gt 131072 ]; then
+  SEEK_SECTORS=$(( PART_SECTORS - 65536 ))
+  dd if=/dev/zero of="$USERDATA_DEV" bs=512 count=65536 seek="$SEEK_SECTORS" conv=notrunc 2>/dev/null || true
+fi
+sync
+
+# 6. Format to ext4
+ui_print "[*] Formatting userdata to ext4 (4K block size, 1% reserve)..."
+FORMAT_OK=0
+
+if command -v mke2fs >/dev/null 2>&1; then
+  ui_print "[*] Using mke2fs..."
+  MKE2FS_LOG="$WORK/mke2fs.log"
+  rm -f "$MKE2FS_LOG"
+
+  # Attempt format with standard modern ext4 features
+  RC=0
+  mke2fs -F -t ext4 -b 4096 -m 1 -L userdata \
+    -O has_journal,extent,huge_file,flex_bg,uninit_bg,dir_nlink,extra_isize,64bit \
+    "$USERDATA_DEV" > "$MKE2FS_LOG" 2>&1 || RC=$?
+
+  if [ "$RC" -ne 0 ]; then
+    # Fallback to minimal flags if extended options were rejected
+    RC=0
+    mke2fs -F -t ext4 -b 4096 -m 1 -L userdata "$USERDATA_DEV" > "$MKE2FS_LOG" 2>&1 || RC=$?
+  fi
+
+  while read -r line; do
+    ui_print "    $line"
+  done < "$MKE2FS_LOG"
+
+  if [ "$RC" -eq 0 ]; then
+    FORMAT_OK=1
+  fi
+fi
+
+if [ "$FORMAT_OK" -ne 1 ] && command -v mkfs.ext4 >/dev/null 2>&1; then
+  ui_print "[*] Fallback: using mkfs.ext4..."
+  MKFS_LOG="$WORK/mkfs.log"
+  rm -f "$MKFS_LOG"
+  RC=0
+  mkfs.ext4 -F -b 4096 -m 1 -L userdata "$USERDATA_DEV" > "$MKFS_LOG" 2>&1 || RC=$?
+  while read -r line; do
+    ui_print "    $line"
+  done < "$MKFS_LOG"
+  if [ "$RC" -eq 0 ]; then
+    FORMAT_OK=1
+  fi
+fi
+
+if [ "$FORMAT_OK" -ne 1 ]; then
+  abort "All formatting methods failed on $USERDATA_DEV!"
+fi
+
+# 7. Tune filesystem parameters
+if command -v tune2fs >/dev/null 2>&1; then
+  ui_print "[*] Tuning ext4 parameters (disabling periodic fsck)..."
+  tune2fs -c -1 -i 0 "$USERDATA_DEV" 2>/dev/null || true
+fi
+
+# 8. Check filesystem integrity
+if command -v e2fsck >/dev/null 2>&1; then
+  ui_print "[*] Verifying ext4 filesystem integrity..."
+  e2fsck -fy "$USERDATA_DEV" >/dev/null 2>&1 || true
+fi
+
+# 9. Clean stale metadata encryption keys from /metadata partition
+for meta_dev in /dev/block/by-name/metadata /dev/block/bootdevice/by-name/metadata; do
+  if [ -b "$meta_dev" ]; then
+    ui_print "[*] Cleaning stale crypto keys from metadata partition ($meta_dev)..."
+    mkdir -p /metadata 2>/dev/null || true
+    if mount -t ext4 "$meta_dev" /metadata 2>/dev/null; then
+      rm -rf /metadata/vold 2>/dev/null || true
+      rm -rf /metadata/ota 2>/dev/null || true
+      sync
+      umount /metadata 2>/dev/null || true
+      ui_print "[+] Cleared /metadata/vold/ encryption keys."
+    else
+      # If metadata cannot mount, reformat it cleanly
+      mke2fs -F -t ext4 -b 4096 -L metadata "$meta_dev" >/dev/null 2>&1 || true
+      ui_print "[+] Reformatted /metadata partition."
+    fi
+    break
+  fi
+done
+
+# 10. Mount and provision default Android /data skeleton
+ui_print "[*] Initializing default /data directories & permissions..."
+mkdir -p /data 2>/dev/null || true
+mount -t ext4 -o rw,noatime "$USERDATA_DEV" /data
+
+# Standard Android root /data permissions
+chmod 771 /data
+chown 1000:1000 /data 2>/dev/null || chown 0:0 /data
+
+# Create internal storage structure
+mkdir -p /data/media/0
+mkdir -p /data/media/obb
+chmod 770 /data/media
+chmod 775 /data/media/0
+# media_rw gid is typically 1023
+chown -R 1023:1023 /data/media 2>/dev/null || true
+
+# Essential system state directories
+mkdir -p /data/system
+mkdir -p /data/misc
+mkdir -p /data/local/tmp
+chmod 775 /data/system 2>/dev/null || true
+chmod 771 /data/local/tmp 2>/dev/null || true
+
+sync
+umount /data
+
+# Cleanup
+rm -rf "$WORK" 2>/dev/null || true
+
+ui_print "=============================================="
+ui_print " [✓] SUCCESS: userdata formatted to ext4!     "
+ui_print " [✓] Filesystem : ext4 (unencrypted, 4K)      "
+ui_print " [✓] Media dir  : /data/media/0 initialized   "
+ui_print " [✓] Metadata   : stale crypto keys cleared   "
+ui_print "----------------------------------------------"
+ui_print " PENTING / IMPORTANT:                         "
+ui_print " Reboot kembali ke Recovery (Reboot Recovery) "
+ui_print " sebelum mem-flash Ubuntu Touch / Halium.     "
+ui_print "=============================================="
+exit 0

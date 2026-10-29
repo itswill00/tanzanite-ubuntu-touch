@@ -1,0 +1,35 @@
+deviceinfo_name="Redmi Note 14 4G"
+deviceinfo_manufacturer="Xiaomi"
+deviceinfo_codename="tanzanite"
+deviceinfo_arch="aarch64"
+
+deviceinfo_kernel_source="https://github.com/iprjkt/evernight-gki"
+deviceinfo_kernel_source_branch="main"
+deviceinfo_kernel_defconfig="tanzanite_defconfig"
+deviceinfo_kernel_cmdline="bootopt=64S3,32N2,64N2"
+deviceinfo_kernel_clang_compile="true"
+deviceinfo_kernel_llvm_compile="true"
+# EvernightKernel is a pure GKI build with no in-tree vendor modules. Vendor
+# modules are shipped prebuilt (from stock vendor_boot) in vendor-ramdisk-overlay.
+deviceinfo_kernel_disable_modules="true"
+
+deviceinfo_ramdisk_compression="lz4"
+deviceinfo_dtb="mediatek/tanzanite.dtb"
+deviceinfo_dtbo="mediatek/tanzanite-overlay.dtb"
+
+deviceinfo_flash_pagesize="4096"
+deviceinfo_flash_offset_base="0x0"
+deviceinfo_flash_offset_kernel="0x40000000"
+deviceinfo_flash_offset_ramdisk="0x66f00000"
+deviceinfo_flash_offset_tags="0x47c80000"
+deviceinfo_flash_offset_dtb="0x47c80000"
+
+deviceinfo_bootimg_qcdt="false"
+deviceinfo_bootimg_header_version="4"
+deviceinfo_bootimg_partition_size="67108864"
+deviceinfo_vendor_boot_partition_size="67108864"
+deviceinfo_bootimg_os_version="12"
+deviceinfo_bootimg_os_patch_level="2025-09"
+deviceinfo_rootfs_image_sector_size="4096"
+
+deviceinfo_halium_version="12"

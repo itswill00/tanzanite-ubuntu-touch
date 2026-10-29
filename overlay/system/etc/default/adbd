@@ -1,0 +1,2 @@
+# Disable ADBD host key verification ("secure ADBD") by default for debugging.
+ADBD_SECURE=0

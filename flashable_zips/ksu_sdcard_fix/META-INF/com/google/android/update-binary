@@ -1,0 +1,64 @@
+#!/sbin/sh
+##########################################################################################
+# Tanzanite HyperOS SDCard Fix - Universal Module Installer (KSU / Magisk / Recovery)
+##########################################################################################
+
+OUTFD=$2
+ZIPFILE=$3
+
+ui_print() {
+  if [ -e "/proc/self/fd/$OUTFD" ]; then
+    echo -e "ui_print $1\nui_print" >> "/proc/self/fd/$OUTFD"
+  else
+    echo "$1"
+  fi
+}
+
+# If running under Magisk environment with util_functions.sh, delegate to Magisk installer
+if [ -f /data/adb/magisk/util_functions.sh ]; then
+  . /data/adb/magisk/util_functions.sh
+  install_module
+  exit 0
+fi
+
+# Recovery or direct standalone installation fallback
+mount /data 2>/dev/null || true
+
+MODID="tanzanite-sdcard-fix"
+MODULES_DIR="/data/adb/modules"
+MODPATH="$MODULES_DIR/$MODID"
+
+ui_print "****************************************"
+ui_print "  Tanzanite HyperOS SDCard Fix (KSU)    "
+ui_print "  Redmi Note 14 4G (tanzanite / MT6789) "
+ui_print "****************************************"
+
+if [ ! -d "/data/adb" ]; then
+  mkdir -p /data/adb
+  chmod 700 /data/adb 2>/dev/null || true
+fi
+
+mkdir -p "$MODPATH"
+chmod 755 "$MODULES_DIR" 2>/dev/null || true
+chmod 755 "$MODPATH"
+
+ui_print "- Extracting module files to $MODPATH..."
+unzip -o "$ZIPFILE" -x "META-INF/*" -d "$MODPATH" >/dev/null 2>&1
+
+chmod 755 "$MODPATH"
+[ -f "$MODPATH/post-fs-data.sh" ] && chmod 755 "$MODPATH/post-fs-data.sh"
+[ -f "$MODPATH/service.sh" ] && chmod 755 "$MODPATH/service.sh"
+[ -f "$MODPATH/system.prop" ] && chmod 644 "$MODPATH/system.prop"
+[ -f "$MODPATH/module.prop" ] && chmod 644 "$MODPATH/module.prop"
+
+# Also place direct post-fs-data hook fallback into /data/adb/post-fs-data.d
+mkdir -p /data/adb/post-fs-data.d
+cp -f "$MODPATH/post-fs-data.sh" /data/adb/post-fs-data.d/99-disable-fuse-bpf.sh
+chmod 755 /data/adb/post-fs-data.d/99-disable-fuse-bpf.sh
+
+rm -f "$MODPATH/disable"
+rm -f "$MODPATH/remove"
+
+ui_print "- Successfully installed Tanzanite SDCard Fix!"
+ui_print "- Changes will take effect on next HyperOS boot."
+exit 0

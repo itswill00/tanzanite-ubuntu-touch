@@ -1,0 +1,15 @@
+[Unit]
+Description=Keep the charger UI up instead of blanking the panel
+DefaultDependencies=no
+ConditionPathExists=/var/lib/lxc/android/rootfs/res/values/charger/animation.txt
+After=mount-android-partitions.service
+Before=lxc-android-config.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'sed "s/^animation: [0-9]* /animation: 0 /" /var/lib/lxc/android/rootfs/res/values/charger/animation.txt > /run/charger-animation.txt'
+ExecStart=/bin/mount --bind /run/charger-animation.txt /var/lib/lxc/android/rootfs/res/values/charger/animation.txt
+ExecStart=/bin/sh -c 'echo 32 > /sys/class/leds/lcd-backlight/brightness'
+
+[Install]
+WantedBy=charger.target

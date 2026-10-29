@@ -1,0 +1,5 @@
+# Tanzanite HyperOS SDCard Fix (Disable FUSE-BPF for decrypted EXT4 storage)
+ro.fuse.bpf.enabled=false
+ro.fuse.bpf.is_running=false
+persist.sys.fuse.bpf.override=false
+persist.sys.fuse.passthrough.enable=false

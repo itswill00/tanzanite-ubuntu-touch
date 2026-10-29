@@ -1,0 +1,32 @@
+# /out, /ota and build products
+/out/
+/ota/
+/images/
+/workdir/
+/tanzanite-halium.zip
+
+# kernel build
+/kernel/
+*.o
+*.ko
+*.mod
+*.mod.c
+.tmp_*
+*.cmd
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# python
+__pycache__/
+*.pyc
+
+# switcher app build output
+/switcher-app/app/build/
+/switcher-app/build/
+/switcher-app/.gradle/
+/switcher-app/local.properties
+/switcher-app/.kotlin/

@@ -1,0 +1,113 @@
+#!/bin/sh
+# boot-to-android: Restore Stock HyperOS boot, vendor_boot, and dtbo to active A/B slot and reboot
+set -e
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "[!] Error: boot-to-android must be run as root (use sudo boot-to-android)." >&2
+  exit 1
+fi
+
+# 1. Dynamically detect active A/B slot
+SLOT=$(grep -o 'androidboot\.slot_suffix=[^ ]*' /proc/cmdline 2>/dev/null | tail -n 1 | cut -d= -f2 || true)
+if [ -z "$SLOT" ] && [ -f /proc/bootconfig ]; then
+  SLOT=$(grep -o 'androidboot\.slot_suffix[[:space:]]*=[[:space:]]*"[^"]*"' /proc/bootconfig 2>/dev/null | cut -d'"' -f2 || true)
+fi
+if [ -z "$SLOT" ] && command -v getprop >/dev/null 2>&1; then
+  SLOT=$(getprop ro.boot.slot_suffix 2>/dev/null || true)
+fi
+[ -z "$SLOT" ] && SLOT="_a"
+
+if [ "$SLOT" != "_a" ] && [ "$SLOT" != "_b" ]; then
+  echo "[!] Error: Invalid active slot detected: '$SLOT'" >&2
+  exit 1
+fi
+
+echo "=================================================="
+echo " Tanzanite OS Switcher: Ubuntu Touch -> HyperOS"
+echo " Active Slot: $SLOT"
+echo "=================================================="
+
+# 2. Locate Backup Directory
+BACKUP_DIR=""
+for cand in "/userdata/media/0/.backup" "/android/data/media/0/.backup" "/data/media/0/.backup" "/sdcard/.backup" "/home/phablet/.backup"; do
+  if [ -d "$cand" ] && [ -s "$cand/boot_stock.img" ]; then
+    BACKUP_DIR="$cand"
+    break
+  fi
+done
+
+if [ -z "$BACKUP_DIR" ]; then
+  echo "[!] Error: Stock backup directory (.backup) containing boot_stock.img not found!" >&2
+  echo "    Checked: /userdata/media/0/.backup, /data/media/0/.backup, /sdcard/.backup" >&2
+  exit 1
+fi
+
+echo "[*] Using stock backup directory: $BACKUP_DIR"
+
+# 3. Validate all 3 stock images before flashing anything
+for p in boot vendor_boot dtbo; do
+  IMG="$BACKUP_DIR/${p}_stock.img"
+  if [ ! -s "$IMG" ]; then
+    echo "[!] Error: Missing or empty backup image: $IMG" >&2
+    exit 1
+  fi
+done
+
+# 4. Resolve partition block device paths (supports /dev/disk/by-partlabel, /dev/block/by-name, /sys/class/block)
+find_partition_node() {
+  part_label="$1"
+  for dir in "/dev/block/by-name" "/dev/disk/by-partlabel" "/dev/block/platform/bootdevice/by-name"; do
+    if [ -e "$dir/$part_label" ]; then
+      readlink -f "$dir/$part_label"
+      return 0
+    fi
+  done
+  for uevent in /sys/class/block/*/uevent; do
+    if grep -qx "PARTNAME=$part_label" "$uevent" 2>/dev/null; then
+      devname=$(grep "^DEVNAME=" "$uevent" | cut -d= -f2)
+      if [ -n "$devname" ] && [ -b "/dev/$devname" ]; then
+        echo "/dev/$devname"
+        return 0
+      fi
+    fi
+  done
+  return 1
+}
+
+BOOT_DEV=$(find_partition_node "boot${SLOT}" || true)
+VBOOT_DEV=$(find_partition_node "vendor_boot${SLOT}" || true)
+DTBO_DEV=$(find_partition_node "dtbo${SLOT}" || true)
+
+for dev in "$BOOT_DEV" "$VBOOT_DEV" "$DTBO_DEV"; do
+  if [ -z "$dev" ] || [ ! -b "$dev" ]; then
+    echo "[!] Error: Could not resolve block device for slot $SLOT partitions!" >&2
+    echo "    boot=${BOOT_DEV:-missing}, vendor_boot=${VBOOT_DEV:-missing}, dtbo=${DTBO_DEV:-missing}" >&2
+    exit 1
+  fi
+done
+
+echo "[*] Target partitions resolved:"
+echo "    boot${SLOT}        -> $BOOT_DEV"
+echo "    vendor_boot${SLOT} -> $VBOOT_DEV"
+echo "    dtbo${SLOT}        -> $DTBO_DEV"
+
+# 5. Flash stock images
+for item in "boot:$BOOT_DEV" "vendor_boot:$VBOOT_DEV" "dtbo:$DTBO_DEV"; do
+  NAME="${item%%:*}"
+  DEV="${item#*:}"
+  IMG="$BACKUP_DIR/${NAME}_stock.img"
+  echo "[*] Flashing $IMG -> $DEV..."
+  blockdev --setrw "$DEV" 2>/dev/null || true
+  dd if="$IMG" of="$DEV" bs=4M status=none
+done
+
+sync
+echo "[+] Stock HyperOS boot, vendor_boot, and dtbo restored to slot $SLOT!"
+
+if [ "$1" = "--no-reboot" ]; then
+  echo "[*] --no-reboot specified; skipping automatic reboot."
+  exit 0
+fi
+
+echo "[*] Rebooting into Android (HyperOS) now..."
+reboot -f || systemctl reboot || reboot

@@ -1,0 +1,45 @@
+diff --git a/build.sh b/build.sh
+index 0cf5d87..0553670 100755
+--- a/build.sh
++++ b/build.sh
+@@ -65,7 +65,13 @@ if [ -n "$deviceinfo_kernel_apply_overlay" ] && $deviceinfo_kernel_apply_overlay
+     "$SCRIPT/build-ufdt-apply-overlay.sh" "${TMPDOWN}"
+ fi
+ 
+-if $deviceinfo_kernel_clang_compile; then
++if [ -n "$UBPORTS_PREBUILT_KERNEL_OBJ" ]; then
++    # Native (non-x86_64) hosts cannot run the prebuilt Android toolchains the
++    # upstream build downloads, so allow injecting a locally built kernel tree.
++    print_header "Using prebuilt kernel artifacts from $UBPORTS_PREBUILT_KERNEL_OBJ"
++    rm -rf "${TMPDOWN}/KERNEL_OBJ"
++    cp -a "$UBPORTS_PREBUILT_KERNEL_OBJ" "${TMPDOWN}/KERNEL_OBJ"
++elif $deviceinfo_kernel_clang_compile; then
+     if [ -n "$deviceinfo_kernel_llvm_compile" ] && $deviceinfo_kernel_llvm_compile; then
+         # Restrict available binaries in PATH to make builds less susceptible to host differences
+         ALLOWED_HOST_TOOLS="bash git perl sh sync tar yes"
+diff --git a/setup_repositories.sh b/setup_repositories.sh
+index 8df92b7..bb255de 100644
+--- a/setup_repositories.sh
++++ b/setup_repositories.sh
+@@ -265,12 +265,18 @@ setup_recovery_ramdisk() {
+ }
+ 
+ cd "$TMPDOWN"
+-    setup_gcc
+-    setup_clang
++    # Skip the Android prebuilt toolchains and the kernel clone when a locally
++    # built kernel tree is injected (UBPORTS_PREBUILT_KERNEL_OBJ).
++    if [ -z "$UBPORTS_PREBUILT_KERNEL_OBJ" ]; then
++        setup_gcc
++        setup_clang
++    fi
+     setup_tooling
+     setup_ramdisk
+     setup_recovery_ramdisk
+-    setup_kernel
++    if [ -z "$UBPORTS_PREBUILT_KERNEL_OBJ" ]; then
++        setup_kernel
++    fi
+ 
+     ls .
+ cd "$HERE"
