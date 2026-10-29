@@ -1,5 +1,23 @@
 # Ubuntu Touch 20.04 for Redmi Note 14 4G (`tanzanite`)
 
+<p align="center">
+  <a href="https://github.com/itswill00/tanzanite-ubuntu-touch/releases/latest"><img src="https://img.shields.io/github/v/release/itswill00/tanzanite-ubuntu-touch?style=flat-square&label=release&color=77216F" alt="Latest release"></a>
+  <a href="https://github.com/itswill00/tanzanite-ubuntu-touch/actions/workflows/validate.yml"><img src="https://img.shields.io/github/actions/workflow/status/itswill00/tanzanite-ubuntu-touch/validate.yml?branch=main&style=flat-square&label=validate" alt="Validation status"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/itswill00/tanzanite-ubuntu-touch?style=flat-square&color=blue" alt="License"></a>
+  <img src="https://img.shields.io/badge/Ubuntu%20Touch-20.04-E95420?style=flat-square&logo=ubuntu&logoColor=white" alt="Ubuntu Touch 20.04">
+  <img src="https://img.shields.io/badge/Halium-12-4E9A06?style=flat-square" alt="Halium 12">
+  <img src="https://img.shields.io/badge/device-Redmi%20Note%2014%204G-FF6900?style=flat-square&logo=xiaomi&logoColor=white" alt="Redmi Note 14 4G">
+  <img src="https://img.shields.io/badge/SoC-MT6789-8E44AD?style=flat-square" alt="MT6789">
+  <img src="https://img.shields.io/badge/kernel-5.10%20GKI-333333?style=flat-square&logo=linux&logoColor=white" alt="Kernel 5.10 GKI">
+</p>
+
+<p align="center">
+  <a href="https://github.com/itswill00/tanzanite-ubuntu-touch/commits/main"><img src="https://img.shields.io/github/last-commit/itswill00/tanzanite-ubuntu-touch?style=flat-square&label=last%20commit" alt="Last commit"></a>
+  <a href="https://github.com/itswill00/tanzanite-ubuntu-touch/stargazers"><img src="https://img.shields.io/github/stars/itswill00/tanzanite-ubuntu-touch?style=flat-square" alt="Stars"></a>
+  <a href="https://github.com/itswill00/tanzanite-ubuntu-touch/issues"><img src="https://img.shields.io/github/issues/itswill00/tanzanite-ubuntu-touch?style=flat-square" alt="Issues"></a>
+  <a href="https://github.com/itswill00/tanzanite-ubuntu-touch/releases"><img src="https://img.shields.io/github/downloads/itswill00/tanzanite-ubuntu-touch/total?style=flat-square&label=downloads" alt="Downloads"></a>
+</p>
+
 Build recipe + reproducible tooling for **Ubuntu Touch 20.04 (Focal Fossa) / Halium 12** on the
 **Xiaomi Redmi Note 14 4G** (`tanzanite`, MediaTek Helio G99 / MT6789).
 
