@@ -1,0 +1,12 @@
+# Vendor binaries and parameter files must be byte-exact. MTK audio tuning
+# payloads (sixth_param*.txt, audio_param/*.xml) ship with CRLF line endings and
+# are parsed by the vendor HAL as-is, so git must never normalise them.
+*.ko        binary
+*.so        binary
+*.so.*      binary
+*.img       binary
+*.bin       binary
+*.dat       binary
+*.apk       binary
+
+overlay/system/usr/share/halium-overlay/vendor/** -text
