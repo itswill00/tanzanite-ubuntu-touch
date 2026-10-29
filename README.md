@@ -26,6 +26,7 @@ from the stock firmware.
 - [Known issues and caveats](#known-issues-and-caveats)
 - [Self-checks](#self-checks)
 - [Versioning](#versioning)
+- [Changelog](#changelog)
 - [What was fixed in this repository](#what-was-fixed-in-this-repository)
 - [License](#license)
 
@@ -374,6 +375,11 @@ Relative to the upstream port, the following defects were found and corrected:
 | `1a1453c`, `13584d1`, `763f447` | module audit, config checker, CI |
 
 ---
+
+## Changelog
+
+Release notes for every version, including what was broken and why, live in
+[`CHANGELOG.md`](CHANGELOG.md). Current version: **1.1.0**.
 
 ## License
 
