@@ -213,14 +213,24 @@ Inherited from the upstream port (`iprjkt/tanzanite-halium`). **Not independentl
 | Rotation / sensors | Working (HIDL 2.0 sensorfw) |
 | Cellular / 4G LTE data, dual SIM | Working (ofono, MTK IRadio@1.2) |
 | WiFi / Bluetooth | Working (ConnMan, BlueZ, Bluebinder) |
-| Audio playback + microphone | **Degraded** — plays, but thin/distorted: DSP modules absent |
-| Flashlight | **Broken** — driver module not shipped |
-| Vibration | **Fixed in this repo** (was a missing udev rule); needs on-device confirmation |
-| Camera | **Broken** — whole ISP pipeline module set absent |
+| Audio playback + microphone | **Fixed in this repo** — DSP modules + stock Aurisys config shipped; needs on-device confirmation |
+| Flashlight | **Fixed in this repo** — `flashlight`/`mtk-pwm` modules shipped; needs on-device confirmation |
+| Vibration | **Fixed in this repo** — was a missing udev rule, not a module; needs on-device confirmation |
+| Camera | **Fixed in this repo** — full ISP pipeline shipped; needs on-device confirmation |
 
 Status rows above "Audio" are inherited from the upstream port and have not been independently
-verified by this build. The three broken features share a single cause: vendor kernel modules that
-are not shipped. See [`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md).
+verified by this build.
+
+Audio, torch, vibration and camera were all broken in the upstream port and are fixed here. The
+first three shared a single cause: 178 vendor kernel modules were missing, because they live on the
+`vendor_dlkm` partition inside `super.img` rather than in `vendor_boot` where the port was looking.
+They were recovered from official firmware `OS2.0.214.0.VOGEUXM` and are now shipped. Vibration was
+a udev permission bug, not a module bug. Full analysis and reproduction steps:
+[`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md).
+
+"Needs on-device confirmation" is literal: the modules are present and loadable per
+`modules.load`, and every path the audio config references exists, but driver binding and
+end-to-end function cannot be verified without hardware.
 
 ---
 
@@ -300,12 +310,11 @@ GKI sources.
    `deviceinfo_kernel_cmdline="console=tty0 systempart=/dev/disk/by-partlabel/system"` and
    `deviceinfo_use_overlaystore="true"`, then rebuild.
 
-2. **Missing kernel modules are the dominant bug class.** Audio, torch and camera all fail because
-   the vendor `.ko` files for those drivers are not shipped in
-   `vendor-ramdisk-overlay/lib/modules/`. These are MediaTek binaries built against a specific GKI
-   KMI and can only be obtained from a stock `vendor_boot.img`. See
-   [`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md) for the full analysis, the per-feature module
-   table, and the five-step remediation procedure.
+2. **Missing kernel modules were the dominant bug class — now fixed.** Audio, torch and camera all
+   failed because 178 vendor `.ko` files were absent. They are **not** in `vendor_boot` (the stock
+   image contains exactly the 207 modules this repo already shipped); they live on the `vendor_dlkm`
+   partition inside `super.img`. All 178 have been recovered from official firmware and are now
+   shipped, bringing the total to 385. See [`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md).
 
 3. **Rootfs URL drift.** The CI job the upstream port references
    (`focal-hybris-rootfs-arm64`) now returns 404. This build uses the official
@@ -321,11 +330,9 @@ GKI sources.
 6. **Firmware lock-in.** Built and tested against `OS2.0.214.0.VOGEUXM`. Newer HyperOS 3.x uses a
    different kernel (6.12) and must be downgraded before installing.
 
-7. **Audio amplifier is unresolved.** `aurisys_config.xml` names a RT5512 smartpa, while the module
-   list previously named sipa/aw87xx/tfa98xx. Exactly one amplifier is fitted. Additionally none of
-   the DSP libraries and parameter files the config references exist in this repository, so Aurisys
-   cannot initialise either way. Resolve against a device running stock HyperOS — procedure in
-   `docs/MODULE_AUDIT.md`.
+7. **Audio amplifier: resolved.** The fitted amplifier is a **SiA81xx** (`sia81xx_sixth`), not the
+   RT5512 the upstream overlay claimed. The stock `aurisys_config.xml` and its DSP payloads are now
+   shipped, and every path the config references exists. See `docs/MODULE_AUDIT.md`.
 
 ## Self-checks
 
@@ -347,6 +354,8 @@ Relative to the upstream port, the following defects were found and corrected:
 
 | Commit | Fix |
 |---|---|
+| `e3d3b0f` | **178 vendor modules recovered from `vendor_dlkm`** — fixes torch, audio DSP and camera ISP; total 385 modules |
+| `117b7e4` | stock `aurisys_config.xml` + DSP payloads replace the wrong RT5512 config; real amp is SiA81xx |
 | `f61c30b` | `modules.load` regenerated: 184 → 207 entries, 23 drivers that were shipped but never loaded now load |
 | `abff716` | 172 dead entries removed from `modules-load.d` (150 had no matching `.ko`, causing boot-time errors) |
 | `44361f5`, `46d1ed8` | udev rules for LED, torch, `timed_output`, `leds/vibrator`, backlight — there were none |
