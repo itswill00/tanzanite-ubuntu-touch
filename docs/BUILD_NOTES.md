@@ -3,6 +3,24 @@
 Everything below was executed on an **aarch64 Ubuntu 24.04 host** (8 cores, 30 GB RAM).
 Timings are from that machine.
 
+## One command
+
+`scripts/build-all.sh` runs the whole chain and is the recommended entry point:
+
+```bash
+./scripts/build-all.sh                     # full build
+SKIP_KERNEL=1 ./scripts/build-all.sh       # reuse an existing kernel/out
+SKIP_IMAGES=1 ./scripts/build-all.sh       # stop after the device tarball
+```
+
+It checks host tools up front, clones the kernel and the UBports build tools if
+absent, applies `build-patches/` when needed, and verifies that each stage
+produced its expected output before moving on. `WORKSPACE`, `KERNEL_SRC` and
+`JOBS` are configurable; nothing outside the repository is referenced.
+
+The stages below are what it runs, listed separately for when a single step needs
+to be re-run by hand.
+
 ## Timeline
 
 | Stage | Wall time | Notes |
