@@ -12,7 +12,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCRIPT_DIR="$ROOT/flashable_zips"
-OUT_DIR="$ROOT/out"
+OUT_DIR="${OUT_DIR:-$ROOT/out}"
 PART_DIR="${PART_DIR:-$OUT_DIR/partitions}"
 ROOTFS="${ROOTFS:-$ROOT/ota/ubuntu-touch-android9plus-rootfs-arm64.tar.gz}"
 GSI="${GSI:-$ROOT/ota/halium_halium_arm64.tar.xz}"
