@@ -1,0 +1,35 @@
+# Shell scripts and config: LF, 4 spaces, no tabs.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{sh,bash}]
+indent_style = space
+indent_size = 4
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.{md,markdown}]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab
+
+# Vendor audio tuning data ships with CRLF and is parsed verbatim by the
+# MediaTek HAL. .gitattributes keeps git from normalising it; this keeps
+# editors from doing the same.
+[overlay/system/usr/share/halium-overlay/vendor/**]
+end_of_line = crlf
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+[*.{ko,so,img,bin,dat,apk}]
+insert_final_newline = false
