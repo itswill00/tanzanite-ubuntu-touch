@@ -448,6 +448,17 @@ if [ -e "$USERDATA_PART" ]; then
     fi
     touch /data/ubuntu/.writable_image /data/.writable_image /data/.force-adb /data/ubuntu/.rootfs_installed
 
+    # Record which build this rootfs came from, so the running system can report
+    # its own version without re-reading the installer zip.
+    if unzip -p "$ZIPFILE" "META-INF/tanzanite/build.prop" > /data/ubuntu/etc/tanzanite-build.prop 2>/dev/null; then
+      BUILD_VER=$("$BB" grep -m1 '^tanzanite.build.version=' /data/ubuntu/etc/tanzanite-build.prop 2>/dev/null | cut -d= -f2)
+      BUILD_COMMIT=$("$BB" grep -m1 '^tanzanite.build.commit=' /data/ubuntu/etc/tanzanite-build.prop 2>/dev/null | cut -d= -f2)
+      ui_print "[+] Build: v${BUILD_VER:-unknown} (${BUILD_COMMIT:-unknown})"
+      ui_print "    Recorded at /data/ubuntu/etc/tanzanite-build.prop"
+    else
+      ui_print "[!] No build manifest in zip; version cannot be recorded."
+    fi
+
     [ -d "/data/ubuntu/usr" ] && [ -d "/data/ubuntu/etc" ] && [ -s "/data/ubuntu/var/lib/lxc/android/android-rootfs.img" ] || abort "Rootfs extraction verification failed!"
     if [ "$IS_ROOTFS_INSTALLED" -eq 1 ]; then
       ui_print "[+] Ubuntu Touch rootfs updated with latest device overlay!"

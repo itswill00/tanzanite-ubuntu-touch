@@ -30,3 +30,6 @@ __pycache__/
 /switcher-app/.gradle/
 /switcher-app/local.properties
 /switcher-app/.kotlin/
+
+# build products (zip + companions live in dist/)
+/dist/

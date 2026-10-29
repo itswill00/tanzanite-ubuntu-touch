@@ -25,6 +25,7 @@ from the stock firmware.
 - [Upstream projects and attribution](#upstream-projects-and-attribution)
 - [Known issues and caveats](#known-issues-and-caveats)
 - [Self-checks](#self-checks)
+- [Versioning](#versioning)
 - [What was fixed in this repository](#what-was-fixed-in-this-repository)
 - [License](#license)
 
@@ -347,6 +348,14 @@ phone. All three run in CI on every push.
 
 `sync_modules_load.sh` and `sync_modules_load_conf.sh` regenerate the two module lists from the
 `.ko` files on disk, so they cannot drift again. Both support `--check` for CI.
+
+## Versioning
+
+Port version is in [`VERSION`](VERSION). Artifacts are named
+`tanzanite-ut20.04-halium12-v<version>-<yyyymmdd>-<commit>.zip` and every build writes a
+`.sha256` and a `.buildinfo` alongside it, plus a `META-INF/tanzanite/build.prop` manifest inside
+the zip that the installer records at `/data/ubuntu/etc/tanzanite-build.prop`. Scheme, bump rules
+and release checklist: [`docs/VERSIONING.md`](docs/VERSIONING.md).
 
 ## What was fixed in this repository
 
