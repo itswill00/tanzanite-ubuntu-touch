@@ -142,3 +142,31 @@ ACTION=="add", KERNEL=="hotknot", OWNER="root", GROUP="system", MODE="0660"
 ACTION=="add", KERNEL=="RT_Monitor", OWNER="system", GROUP="system", MODE="0660"
 ACTION=="add", KERNEL=="kick_powerkey", OWNER="system", GROUP="system", MODE="0660"
 ACTION=="add", KERNEL=="ttyACM0", OWNER="radio", GROUP="radio", MODE="0660"
+
+# --- LEDs, torch and haptics -------------------------------------------------
+# Ubuntu Touch userspace runs as the `phablet` user; the sysfs nodes below are
+# created by leds-mtk / leds-mtk-pwm / flashlight / regulator-vibrator and are
+# root-owned by default, so the desktop cannot drive them without these rules.
+
+# Notification LED (deviceinfo SingleColorLedSysfsPath=/sys/class/leds/green)
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="green", OWNER="system", GROUP="system", MODE="0660"
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="red",   OWNER="system", GROUP="system", MODE="0660"
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="blue",  OWNER="system", GROUP="system", MODE="0660"
+
+# Flashlight / torch. The MTK driver registers class `flashlight_core`, which
+# produces /sys/class/flashlight_core/flashlight/flashlight_torch - the exact path
+# tanzanite-flashlight-bridge writes to on behalf of ayatana-indicator-power
+# (deviceinfo FlashlightSysfsPath=/run/flashlight_bridge). Cover the generic
+# `leds` and `flashlight` classes too, since the node name varies by kernel.
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="*flash*", OWNER="system", GROUP="system", MODE="0660"
+ACTION=="add|change", SUBSYSTEM=="flashlight_core", KERNEL=="*", OWNER="system", GROUP="system", MODE="0660"
+ACTION=="add|change", SUBSYSTEM=="flashlight", KERNEL=="*", OWNER="system", GROUP="system", MODE="0660"
+ACTION=="add|change", KERNEL=="flashlight_torch", OWNER="system", GROUP="system", MODE="0660"
+
+# Haptics. hfd-service writes to timed_output; regulator-vibrator creates it.
+ACTION=="add|change", SUBSYSTEM=="timed_output", KERNEL=="*", OWNER="system", GROUP="system", MODE="0660"
+ACTION=="add|change", KERNEL=="timed_output*", OWNER="system", GROUP="system", MODE="0660"
+ACTION=="add|change", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*vibrator*", OWNER="system", GROUP="system", MODE="0660"
+
+# Display backlight, used by repowerd/ayatana for brightness control.
+ACTION=="add|change", SUBSYSTEM=="backlight", KERNEL=="*", OWNER="system", GROUP="system", MODE="0660"
