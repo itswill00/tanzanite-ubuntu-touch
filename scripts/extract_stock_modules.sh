@@ -73,8 +73,8 @@ echo "==> Extracted $COUNT module(s) into $OUTDIR/modules"
 
 echo
 echo "==> Modules present in stock but MISSING from this repo"
-stock_list="$(cd "$OUTDIR/modules" && ls *.ko | sed 's/\.ko$//' | sort -u)"
-repo_list="$(cd "$SHIPPED" && ls *.ko | sed 's/\.ko$//' | sort -u)"
+stock_list="$(cd "$OUTDIR/modules" && find . -maxdepth 1 -name '*.ko' -printf '%f\n' | sed 's/\.ko$//' | sort -u)"
+repo_list="$(cd "$SHIPPED" && find . -maxdepth 1 -name '*.ko' -printf '%f\n' | sed 's/\.ko$//' | sort -u)"
 comm -23 <(echo "$stock_list") <(echo "$repo_list") > "$OUTDIR/missing.txt" || true
 if [ -s "$OUTDIR/missing.txt" ]; then
     printf '\033[31m%s module(s) missing:\033[0m\n' "$(wc -l < "$OUTDIR/missing.txt")"

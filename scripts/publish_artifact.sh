@@ -10,7 +10,8 @@ if [ -n "${1:-}" ]; then
     ZIP="$1"
 else
     # Default to the newest build in dist/, whatever its version string is.
-    ZIP="$(ls -1t "$ROOT"/dist/*.zip 2>/dev/null | head -1 || true)"
+    ZIP="$(find "$ROOT/dist" -maxdepth 1 -name '*.zip' -printf '%T@ %p\n' 2>/dev/null \
+           | sort -rn | head -1 | cut -d' ' -f2- || true)"
 fi
 
 [ -s "$ZIP" ] || { echo "no such zip: $ZIP" >&2; exit 1; }

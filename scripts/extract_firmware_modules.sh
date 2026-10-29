@@ -102,8 +102,8 @@ echo "==> Collected $COUNT module(s) from firmware"
 [ "$COUNT" -gt 0 ] || { echo "no modules found - unexpected vendor_boot layout" >&2; exit 1; }
 
 echo "==> Comparing with modules shipped in this repo"
-fw_list="$(cd "$WORK/modules" && ls *.ko | sed 's/\.ko$//' | sort -u)"
-repo_list="$(cd "$SHIPPED" && ls *.ko | sed 's/\.ko$//' | sort -u)"
+fw_list="$(cd "$WORK/modules" && find . -maxdepth 1 -name '*.ko' -printf '%f\n' | sed 's/\.ko$//' | sort -u)"
+repo_list="$(cd "$SHIPPED" && find . -maxdepth 1 -name '*.ko' -printf '%f\n' | sed 's/\.ko$//' | sort -u)"
 comm -23 <(echo "$fw_list") <(echo "$repo_list") > "$WORK/missing.txt" || true
 printf '    %s module(s) in firmware but missing from repo\n' "$(wc -l < "$WORK/missing.txt")"
 

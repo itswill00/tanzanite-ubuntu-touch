@@ -26,7 +26,7 @@ red()   { printf '\033[31m%s\033[0m\n' "$*"; }
 green() { printf '\033[32m%s\033[0m\n' "$*"; }
 bold()  { printf '\033[1m%s\033[0m\n' "$*"; }
 
-list_shipped()  { (cd "$MODDIR" && ls *.ko 2>/dev/null | sed 's/\.ko$//' | sort -u); }
+list_shipped()  { (cd "$MODDIR" && find . -maxdepth 1 -name '*.ko' -printf '%f\n' 2>/dev/null | sed 's/\.ko$//' | sort -u); }
 list_loaded()   { grep -vE '^\s*#|^\s*$' "$LOADFILE" 2>/dev/null | sed 's/\.ko$//' | sort -u; }
 list_conf()     { grep -vE '^\s*#|^\s*$' "$CONFFILE" 2>/dev/null | sed 's/\.ko$//' | sort -u; }
 
