@@ -108,31 +108,35 @@ else
     FAIL=1
 fi
 
-bold "== 6. aurisys amplifier consistency =="
+bold "== 6. aurisys DSP payloads =="
+# aurisys_config.xml names DSP processing libraries, not kernel modules. Those
+# names (misound, mtk_iir, sia81xx_sixth, ...) do not map to snd-soc-* modules,
+# so checking them against the module set is meaningless. What matters is that
+# every library and parameter path the config references actually exists in the
+# vendor overlay, otherwise Aurisys cannot initialise and audio silently falls
+# back to a plain PCM route.
 if [ -f "$AURISYS" ]; then
-    # Collect amplifier names the config references.
-    AMPS="$(grep -oE 'library name="[^"]*"' "$AURISYS" | sed 's/.*name="//;s/"//' | grep -viE 'aurisys_demo' | sort -u || true)"
-    if [ -n "$AMPS" ]; then
-        for amp in $AMPS; do
-            # Strip a leading smartpa_ prefix to match the kernel module name.
-            mod="snd-soc-${amp#smartpa_}"
-            if [ -f "$MODDIR/$mod.ko" ]; then
-                green "  ok - $amp -> $mod.ko shipped"
-            else
-                red "  $amp referenced by aurisys_config.xml but $mod.ko is not shipped"
-                FAIL=1
-            fi
-        done
-    fi
-    # The config also points at DSP payloads; make sure they exist in the overlay.
+    MISSING_DSP_FILES=()
     while IFS= read -r p; do
         [ -n "$p" ] || continue
         rel="${p#/vendor/}"
         if [ ! -e "$VENDOR_OVERLAY/$rel" ]; then
-            red "  aurisys_config.xml references $p but it is not in the vendor overlay"
-            FAIL=1
+            MISSING_DSP_FILES+=("$p")
         fi
     done < <(grep -oE '(lib_path|lib64_path|param_path)="[^"]*"' "$AURISYS" | cut -d'"' -f2 | sort -u)
+
+    if [ ${#MISSING_DSP_FILES[@]} -eq 0 ]; then
+        green "  ok - every library and parameter path referenced by aurisys_config.xml is present"
+    else
+        red "  ${#MISSING_DSP_FILES[@]} path(s) referenced by aurisys_config.xml are missing:"
+        printf '    %s\n' "${MISSING_DSP_FILES[@]}"
+        red "  Aurisys cannot initialise without them."
+        FAIL=1
+    fi
+
+    # Report which DSP libraries the config actually uses, for the record.
+    LIBS="$(grep -oE 'library name="[^"]*"' "$AURISYS" | sed 's/.*name="//;s/"//' | sort -u | tr '\n' ' ')"
+    yellow "  libraries named by the config: $LIBS"
 else
     yellow "  skipped (no aurisys_config.xml)"
 fi
