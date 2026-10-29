@@ -163,9 +163,16 @@ ACTION=="add|change", SUBSYSTEM=="flashlight_core", KERNEL=="*", OWNER="system",
 ACTION=="add|change", SUBSYSTEM=="flashlight", KERNEL=="*", OWNER="system", GROUP="system", MODE="0660"
 ACTION=="add|change", KERNEL=="flashlight_torch", OWNER="system", GROUP="system", MODE="0660"
 
-# Haptics. hfd-service writes to timed_output; regulator-vibrator creates it.
+# Haptics. hfd-service probes, in order: binder AIDL/HIDL vibrator, then
+# /sys/class/leds/vibrator (VibratorSysfs), then /sys/class/timed_output/vibrator
+# (VibratorLegacy), then force-feedback input devices. regulator-vibrator on
+# MT6789 registers a timed_output device, so VibratorLegacy is the path that
+# actually gets used here - it must be writable or hfd-service silently falls
+# back to VibratorDummy and no haptics happen at all.
 ACTION=="add|change", SUBSYSTEM=="timed_output", KERNEL=="*", OWNER="system", GROUP="system", MODE="0660"
 ACTION=="add|change", KERNEL=="timed_output*", OWNER="system", GROUP="system", MODE="0660"
+# leds-class vibrator, in case a different kernel config exposes it that way
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="vibrator", OWNER="system", GROUP="system", MODE="0660"
 ACTION=="add|change", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*vibrator*", OWNER="system", GROUP="system", MODE="0660"
 
 # Display backlight, used by repowerd/ayatana for brightness control.
