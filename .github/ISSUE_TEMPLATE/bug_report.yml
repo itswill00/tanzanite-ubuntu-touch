@@ -1,0 +1,106 @@
+name: Bug report
+description: Something is broken on a real device
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A report without logs usually cannot be acted on. Please fill everything below.
+
+        Read `docs/MODULE_AUDIT.md` and `docs/BOOTLOADER.md` first — they cover the two
+        failure classes this port has actually hit.
+
+  - type: input
+    id: build
+    attributes:
+      label: Build version
+      description: Output of `cat /etc/tanzanite-build.prop` (or the zip filename you flashed)
+      placeholder: "tanzanite.build.version=1.1.0 / tanzanite-ut20.04-halium12-v1.1.0-..."
+    validations:
+      required: true
+
+  - type: input
+    id: firmware
+    attributes:
+      label: Stock firmware you started from
+      description: Settings → About phone, or the fastboot package version
+      placeholder: "OS2.0.214.0.VOGEUXM"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Where does it fail?
+      options:
+        - Bootloader rejects the image (never reaches kernel)
+        - Kernel starts but rootfs does not mount
+        - Boots to UI, a feature does not work
+        - Boots to UI, unstable / crashes
+    validations:
+      required: true
+
+  - type: textarea
+    id: symptom
+    attributes:
+      label: What happens, and what you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: bootvars
+    attributes:
+      label: Bootloader state
+      description: |
+        Paste the output of:
+        ```
+        fastboot getvar unlocked
+        fastboot getvar current-slot
+        adb shell 'dd if=/dev/block/by-name/vbmeta_a bs=1 skip=120 count=4 2>/dev/null | xxd'
+        adb shell 'dd if=/dev/block/by-name/boot_a bs=64 count=1 2>/dev/null | xxd'
+        ```
+        `vbmeta` flags must read `03000000` and `boot_a` must start with `ANDROID!`.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        ```
+        dmesg | tail -100
+        journalctl -b --no-pager | tail -200
+        lsmod
+        ```
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: If a feature is broken, its specific checks
+      description: |
+        Audio / torch / camera / vibration:
+        ```
+        ls -l /sys/class/flashlight_core/flashlight/flashlight_torch
+        lsmod | grep -E 'snd-soc-mt6789-afe|snd-soc-mt6366|audio_ipi|adsp'
+        journalctl -b | grep -i aurisys
+        ls /dev/mtk_cam* 2>/dev/null
+        journalctl -u hfd-service | grep -i vibrator
+        ```
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I am on firmware OS2.0.214.0.VOGEUXM (or state the version above)
+        - label: /data is formatted to unencrypted ext4
+        - label: I have not flashed a bootloader patch (fenrir / lkpatcher / modlk)
+        - label: I searched existing issues
