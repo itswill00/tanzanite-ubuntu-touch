@@ -1,0 +1,69 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  consistency:
+    name: module and device config consistency
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: |
+          for f in scripts/*.sh build.sh; do
+            bash -n "$f" || { echo "syntax error in $f"; exit 1; }
+          done
+
+      - name: Module list consistency
+        run: ./scripts/check_modules.sh
+
+      - name: modules.load is up to date
+        run: ./scripts/sync_modules_load.sh --check
+
+      - name: modules-load.d is up to date
+        run: ./scripts/sync_modules_load_conf.sh --check
+
+      - name: Device configuration consistency
+        run: ./scripts/check_device_config.sh
+
+      - name: deviceinfo parses
+        run: bash -c 'source ./deviceinfo && echo "codename=$deviceinfo_codename cmdline=$deviceinfo_kernel_cmdline"'
+
+      - name: XML files are well formed
+        run: |
+          python3 - <<'PY'
+          import glob, sys, xml.etree.ElementTree as ET
+          bad = []
+          for p in glob.glob('overlay/**/*.xml', recursive=True):
+              try:
+                  ET.parse(p)
+              except Exception as e:
+                  bad.append((p, e))
+          for p, e in bad:
+              print(f"{p}: {e}")
+          sys.exit(1 if bad else 0)
+          PY
+
+      - name: udev rules syntax
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq systemd
+          # udevadm verify always reports "check failed" on a host where the
+          # device-specific users/groups (system, android_graphics, radio, ...)
+          # do not exist. Only genuine syntax diagnostics are fatal.
+          rc=0
+          for f in overlay/system/usr/lib/udev/rules.d/*.rules; do
+            out=$(udevadm verify "$f" 2>&1 || true)
+            echo "--- $f"
+            echo "$out"
+            if echo "$out" | grep -qiE 'style:|invalid|no effect|expected|unknown key'; then
+              echo "syntax problem in $f"
+              rc=1
+            fi
+          done
+          exit $rc
