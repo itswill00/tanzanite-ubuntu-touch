@@ -6,7 +6,12 @@ deviceinfo_arch="aarch64"
 deviceinfo_kernel_source="https://github.com/iprjkt/evernight-gki"
 deviceinfo_kernel_source_branch="main"
 deviceinfo_kernel_defconfig="tanzanite_defconfig"
-deviceinfo_kernel_cmdline="bootopt=64S3,32N2,64N2"
+# console=tty0 is required by the Ubuntu Touch initramfs: without it the rootfs
+# has no console to attach to and boot can hang with no output. UBports
+# documentation calls it mandatory and says it must never be removed. It was
+# missing from this port's cmdline; the rest of the string is the stock boot.img
+# cmdline for tanzanite and is kept as-is.
+deviceinfo_kernel_cmdline="console=tty0 bootopt=64S3,32N2,64N2"
 deviceinfo_kernel_clang_compile="true"
 deviceinfo_kernel_llvm_compile="true"
 # EvernightKernel is a pure GKI build with no in-tree vendor modules. Vendor
