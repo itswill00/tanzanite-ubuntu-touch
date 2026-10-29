@@ -70,7 +70,10 @@ VPATH="$(echo "$LIST" | grep -E '(^|/)vendor\.img$' | head -1 || true)"
 if [ -n "$VPATH" ]; then
     echo "==> Extracting vendor.img (audio DSP libraries)"
     "${DECOMP[@]}" xf "$FW" -C "$WORK/images" "$VPATH"
-    [ "$(dirname "$VPATH")" != "." ] && mv "$WORK/images/$VPATH" "$WORK/images/vendor.img" 2>/dev/null || true
+    if [ "$(dirname "$VPATH")" != "." ]; then
+        mv "$WORK/images/$VPATH" "$WORK/images/vendor.img"
+        rmdir -p "$WORK/images/$(dirname "$VPATH")" 2>/dev/null || true
+    fi
 fi
 
 echo "==> Unpacking vendor_boot ramdisk"
