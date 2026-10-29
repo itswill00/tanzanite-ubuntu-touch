@@ -29,10 +29,12 @@ yellow(){ printf '\033[33m%s\033[0m\n' "$*"; }
 bold()  { printf '\033[1m%s\033[0m\n' "$*"; }
 FAIL=0
 
-# shellcheck disable=SC1090
+# deviceinfo is a shell fragment; the variables below only exist after sourcing.
+# shellcheck disable=SC1090,SC2154
 source "$DEVINFO"
 
 bold "== 1. kernel cmdline requirements =="
+# shellcheck disable=SC2154  # assigned by sourcing deviceinfo above
 if [[ " ${deviceinfo_kernel_cmdline} " == *" console=tty0 "* ]]; then
     green "ok - console=tty0 present"
 else
@@ -48,12 +50,20 @@ yaml_get() {
     grep -oE "^[[:space:]]*$1:[[:space:]]*[^[:space:]]+" "$YAML" 2>/dev/null \
         | head -1 | sed 's/.*:[[:space:]]*//'
 }
-# Each entry: <yaml key> <sysfs path> <module that creates it> <feature>
+# Each entry: <yaml key> <expected sysfs path> <module that creates it> <feature>
 check_path() {
-    local key="$1" path="$2" mod="$3" feature="$4"
+    local key="$1" expected="$2" mod="$3" feature="$4"
     local val
     val="$(yaml_get "$key")"
     [ -n "$val" ] || return 0
+    # The YAML value is what userspace will actually open, so it must be the path
+    # this check was written for; a silent mismatch would validate the wrong node.
+    if [ "$val" != "$expected" ]; then
+        red "  $key -> $val"
+        red "    expected $expected; this check no longer covers the configured path"
+        FAIL=1
+        return 0
+    fi
     if [ ! -f "$MODDIR/$mod.ko" ]; then
         red "  $key -> $val"
         red "    but $mod.ko is not shipped, so $feature cannot work"
