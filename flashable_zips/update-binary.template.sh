@@ -85,7 +85,9 @@ elif [ -e "/dev/block/by-name/super" ]; then
   [ -e "/dev/block/mapper/vendor${SLOT}" ] && VENDOR_PART="/dev/block/mapper/vendor${SLOT}"
 fi
 
-[ -n "$VENDOR_PART" ] && [ -e "$VENDOR_PART" ] || abort "Vendor partition for slot $SLOT not found!"
+if [ -z "$VENDOR_PART" ] || [ ! -e "$VENDOR_PART" ]; then
+  abort "Vendor partition for slot $SLOT not found!"
+fi
 umount -fl "$VENDOR_PART" 2>/dev/null || true
 blockdev --setrw "$VENDOR_PART" 2>/dev/null || true
 
@@ -263,7 +265,6 @@ else
     ui_print "[*] Repacked EROFS size: $NEW_SIZE bytes (limit: $ORIG_SIZE bytes)"
     if [ "$NEW_SIZE" -gt "$ORIG_SIZE" ]; then
       ui_print "[!] Repacked image ($NEW_SIZE bytes) exceeds partition size ($ORIG_SIZE bytes)."
-      RESIZED=false
       if [ -e "/dev/block/by-name/super" ] && [ -x "$WORK/tools/lptools" ]; then
         ui_print "[*] Expanding dynamic partition vendor${SLOT} via lptools..."
 
@@ -278,15 +279,20 @@ else
         "$WORK/tools/lptools" --super /dev/block/by-name/super --slot "$SLOT_NUM" --unmap "vendor${SLOT}" 2>/dev/null || true
 
         # Resize partition in super metadata
-        if "$WORK/tools/lptools" --super /dev/block/by-name/super --slot "$SLOT_NUM" --suffix "$SLOT" --resize "vendor${SLOT}" "$TARGET_SIZE" 2>&1; then
-          RESIZED=true
-        elif "$WORK/tools/lptools" --super /dev/block/by-name/super --slot "$SLOT_NUM" --suffix "$SLOT" --unlimited-group --resize "vendor${SLOT}" "$TARGET_SIZE" 2>&1; then
-          RESIZED=true
-        elif "$WORK/tools/lptools" --super /dev/block/by-name/super --slot "$SLOT_NUM" --resize "vendor${SLOT}" "$TARGET_SIZE" 2>&1; then
-          RESIZED=true
-        elif "$WORK/tools/lptools" --super /dev/block/by-name/super --slot "$SLOT_NUM" --suffix "$SLOT" --resize "vendor" "$TARGET_SIZE" 2>&1; then
-          RESIZED=true
-        fi
+        # lptools CLI varies between versions, so try the known invocations in
+        # order. Success is not tracked here: the resulting partition size is
+        # compared against TARGET_SIZE below, which is the only thing that
+        # actually matters and covers a resize that silently did nothing.
+        for attempt in \
+            "--suffix $SLOT --resize vendor${SLOT}" \
+            "--suffix $SLOT --unlimited-group --resize vendor${SLOT}" \
+            "--resize vendor${SLOT}" \
+            "--suffix $SLOT --resize vendor"; do
+          # shellcheck disable=SC2086  # intentional word splitting of the flag list
+          if "$WORK/tools/lptools" --super /dev/block/by-name/super --slot "$SLOT_NUM" $attempt "$TARGET_SIZE" 2>&1; then
+            break
+          fi
+        done
 
         # Remap partition to update device-mapper table in kernel
         "$WORK/tools/lptools" --super /dev/block/by-name/super --slot "$SLOT_NUM" --suffix "$SLOT" --map "vendor${SLOT}" || true
@@ -459,7 +465,10 @@ if [ -e "$USERDATA_PART" ]; then
       ui_print "[!] No build manifest in zip; version cannot be recorded."
     fi
 
-    [ -d "/data/ubuntu/usr" ] && [ -d "/data/ubuntu/etc" ] && [ -s "/data/ubuntu/var/lib/lxc/android/android-rootfs.img" ] || abort "Rootfs extraction verification failed!"
+    if [ ! -d "/data/ubuntu/usr" ] || [ ! -d "/data/ubuntu/etc" ] \
+       || [ ! -s "/data/ubuntu/var/lib/lxc/android/android-rootfs.img" ]; then
+      abort "Rootfs extraction verification failed!"
+    fi
     if [ "$IS_ROOTFS_INSTALLED" -eq 1 ]; then
       ui_print "[+] Ubuntu Touch rootfs updated with latest device overlay!"
     else
