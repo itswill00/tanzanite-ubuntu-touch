@@ -24,6 +24,8 @@ from the stock firmware.
 - [Repository layout](#repository-layout)
 - [Upstream projects and attribution](#upstream-projects-and-attribution)
 - [Known issues and caveats](#known-issues-and-caveats)
+- [Self-checks](#self-checks)
+- [What was fixed in this repository](#what-was-fixed-in-this-repository)
 - [License](#license)
 
 ---
@@ -208,12 +210,17 @@ Inherited from the upstream port (`iprjkt/tanzanite-halium`). **Not independentl
 | Lomiri UI / compositor | Working |
 | GPU acceleration (Mali-G57 MC2, libhybris) | Working |
 | Battery / power management | Working (UPower BMS filter shim) |
-| Audio playback + microphone | Working (PulseAudio droid HAL 30) |
-| Flashlight | Working (sysfs bridge daemon) |
 | Rotation / sensors | Working (HIDL 2.0 sensorfw) |
 | Cellular / 4G LTE data, dual SIM | Working (ofono, MTK IRadio@1.2) |
 | WiFi / Bluetooth | Working (ConnMan, BlueZ, Bluebinder) |
-| Camera | **In progress** |
+| Audio playback + microphone | **Degraded** — plays, but thin/distorted: DSP modules absent |
+| Flashlight | **Broken** — driver module not shipped |
+| Vibration | **Fixed in this repo** (was a missing udev rule); needs on-device confirmation |
+| Camera | **Broken** — whole ISP pipeline module set absent |
+
+Status rows above "Audio" are inherited from the upstream port and have not been independently
+verified by this build. The three broken features share a single cause: vendor kernel modules that
+are not shipped. See [`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md).
 
 ---
 
@@ -293,9 +300,12 @@ GKI sources.
    `deviceinfo_kernel_cmdline="console=tty0 systempart=/dev/disk/by-partlabel/system"` and
    `deviceinfo_use_overlaystore="true"`, then rebuild.
 
-2. **`console=tty0` is absent** from the cmdline in this configuration. UBports docs call it
-   mandatory for rootfs boot; the upstream port omits it because the installer writes the
-   ramdisk-side config instead. If you hit a boot hang with no output, add it and rebuild.
+2. **Missing kernel modules are the dominant bug class.** Audio, torch and camera all fail because
+   the vendor `.ko` files for those drivers are not shipped in
+   `vendor-ramdisk-overlay/lib/modules/`. These are MediaTek binaries built against a specific GKI
+   KMI and can only be obtained from a stock `vendor_boot.img`. See
+   [`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md) for the full analysis, the per-feature module
+   table, and the five-step remediation procedure.
 
 3. **Rootfs URL drift.** The CI job the upstream port references
    (`focal-hybris-rootfs-arm64`) now returns 404. This build uses the official
@@ -308,10 +318,42 @@ GKI sources.
 5. **Native aarch64 hosts cannot run the upstream prebuilt toolchains** (they are x86_64 binaries).
    Hence `build-patches/`. On x86_64 you do not need the patch.
 
-6. **Camera does not work yet.**
-
-7. **Firmware lock-in.** Built and tested against `OS2.0.214.0.VOGEUXM`. Newer HyperOS 3.x uses a
+6. **Firmware lock-in.** Built and tested against `OS2.0.214.0.VOGEUXM`. Newer HyperOS 3.x uses a
    different kernel (6.12) and must be downgraded before installing.
+
+7. **Audio amplifier is unresolved.** `aurisys_config.xml` names a RT5512 smartpa, while the module
+   list previously named sipa/aw87xx/tfa98xx. Exactly one amplifier is fitted. Additionally none of
+   the DSP libraries and parameter files the config references exist in this repository, so Aurisys
+   cannot initialise either way. Resolve against a device running stock HyperOS — procedure in
+   `docs/MODULE_AUDIT.md`.
+
+## Self-checks
+
+Three scripts exist so the failure modes above are caught mechanically rather than by ear on a
+phone. All three run in CI on every push.
+
+```bash
+./scripts/check_modules.sh          # three module lists agree; hardware-critical groups present
+./scripts/check_device_config.sh    # cmdline, sysfs paths, audio rates, aurisys, vibrator backend
+./scripts/extract_stock_modules.sh vendor_boot.img   # diff stock modules against what ships here
+```
+
+`sync_modules_load.sh` and `sync_modules_load_conf.sh` regenerate the two module lists from the
+`.ko` files on disk, so they cannot drift again. Both support `--check` for CI.
+
+## What was fixed in this repository
+
+Relative to the upstream port, the following defects were found and corrected:
+
+| Commit | Fix |
+|---|---|
+| `f61c30b` | `modules.load` regenerated: 184 → 207 entries, 23 drivers that were shipped but never loaded now load |
+| `abff716` | 172 dead entries removed from `modules-load.d` (150 had no matching `.ko`, causing boot-time errors) |
+| `44361f5`, `46d1ed8` | udev rules for LED, torch, `timed_output`, `leds/vibrator`, backlight — there were none |
+| `99d115e` | flashlight bridge probes multiple node names/formats and logs failures instead of failing silently |
+| `f94052b` | audio policy pinned to 48 kHz to match the PulseAudio droid card, removing a CPU resample |
+| `ec54bb6` | `console=tty0` added to the kernel cmdline (required by UBports, was absent) |
+| `1a1453c`, `13584d1`, `763f447` | module audit, config checker, CI |
 
 ---
 
