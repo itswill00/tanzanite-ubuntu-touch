@@ -7,9 +7,10 @@ Binaries are **not** stored in git. This directory holds only checksums and poin
 | Field | Value |
 | --- | --- |
 | File | `tanzanite-halium.zip` |
-| Size | 962,716,095 bytes (918 MiB) |
-| SHA-256 | `18393dd19e5be2ae61982b87a2aae50ef2c3f4b5cd3c583ba88afa520bb9c402` |
-| Download | https://gofile.io/d/h2oELXdq |
+| Size | 963251086 bytes (919 MiB) |
+| SHA-256 | `e2b6dbf452ba349e2285d78d9bbee00b8eca5aeb37ebf01aaa199a5f3c69b3b4` |
+| MD5 | `b70026f7ab7be675b81658a01081b6e9` |
+| Download | https://gofile.io/d/hXCvFAqw |
 
 Rebuild it with `./scripts/build_zip_local.sh` (see `docs/BUILD_NOTES.md`).
 
@@ -17,16 +18,16 @@ Rebuild it with `./scripts/build_zip_local.sh` (see `docs/BUILD_NOTES.md`).
 
 | Path | Size |
 | --- | --- |
-| `ubuntu-touch-hybris-rootfs-arm64.tar.gz` | 743,455,763 B |
-| `halium_halium_arm64.tar.xz` | 147,425,392 B |
-| `partitions/boot.img` | 67,108,864 B |
-| `partitions/vendor_boot.img` | 67,108,864 B |
-| `partitions/dtbo.img` | 135,507 B |
-| `device_tanzanite.tar.xz` | 38,280,192 B |
-| `device_tanzanite_system.tar.gz` | 1,663,845 B |
-| `vbmeta/vbmeta.img`, `vbmeta_system.img`, `vbmeta_vendor.img` | 8,388,608 B each |
+| `ubuntu-touch-hybris-rootfs-arm64.tar.gz` | UT Focal arm64 rootfs |
+| `halium_halium_arm64.tar.xz` | Halium 12 GSI (contains android-rootfs.img) |
+| `partitions/boot.img` | Halium boot image, header v4 |
+| `partitions/vendor_boot.img` | Halium vendor_boot, header v4, carries ramdisk + dtb |
+| `partitions/dtbo.img` | Device tree overlay |
+| `device_tanzanite.tar.xz` | Device tarball |
+| `device_tanzanite_system.tar.gz` | Rootfs overlay (udev, ofono, audio, libhybris) |
+| `vbmeta/*.img` | Pre-disabled AVB metadata |
 | `tools/*` | busybox, avbctl, erofs tools, lptools |
-| `META-INF/com/google/android/update-binary` | installer logic |
+| `META-INF/com/google/android/update-binary` | Installer logic |
 
 ## Images produced alongside (not uploaded)
 
