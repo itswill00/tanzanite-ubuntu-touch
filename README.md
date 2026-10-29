@@ -27,6 +27,7 @@ from the stock firmware.
 - [Self-checks](#self-checks)
 - [Versioning](#versioning)
 - [Changelog](#changelog)
+- [Bootloader and AVB](#bootloader-and-avb)
 - [What was fixed in this repository](#what-was-fixed-in-this-repository)
 - [License](#license)
 
@@ -376,6 +377,16 @@ Relative to the upstream port, the following defects were found and corrected:
 | `1a1453c`, `13584d1`, `763f447` | module audit, config checker, CI |
 
 ---
+
+## Bootloader and AVB
+
+Communities often claim Ubuntu Touch requires patching the bootloader with fenrir or lkpatcher
+first. **It does not.** Verified boot is enforced through `vbmeta`, which the installer already
+patches to disable verification and verity, and `lkpatcher` cannot patch tanzanite anyway: the tool
+only speaks ARM32 Thumb-2 while tanzanite's LK is AArch64 (0 of 6 default patches apply).
+
+Patching LK means modifying `bl2_ext`, which runs at EL3 — a wrong offset there bricks the device
+beyond fastboot recovery. Read [`docs/BOOTLOADER.md`](docs/BOOTLOADER.md) before considering it.
 
 ## Changelog
 
