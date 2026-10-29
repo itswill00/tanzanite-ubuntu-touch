@@ -19,6 +19,14 @@ jobs:
             bash -n "$f" || { echo "syntax error in $f"; exit 1; }
           done
 
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck
+          shellcheck --version | head -2
+          shellcheck -S info scripts/*.sh build.sh
+          echo "shellcheck: no findings"
+
       - name: Module list consistency
         run: ./scripts/check_modules.sh
 
