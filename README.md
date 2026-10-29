@@ -84,9 +84,9 @@ Version pairing is fixed by the device's vendor blobs:
 
 If you just want to install, use the prebuilt installer:
 
-- **Download:** <https://gofile.io/d/hXCvFAqw>
-- **File:** `tanzanite-halium.zip` (919 MiB)
-- **SHA-256:** `e2b6dbf452ba349e2285d78d9bbee00b8eca5aeb37ebf01aaa199a5f3c69b3b4`
+- **Download:** <https://gofile.io/d/1q9X8v3Y>
+- **File:** `tanzanite-halium.zip` (933 MiB)
+- **SHA-256:** `af2e481d53886e0948dfaa7f66665444aa47d39afe059ccb6feab83792431223`
 
 Full step-by-step instructions, including the mandatory ext4 reformat and the slot-A dual-boot
 layout, are in:
