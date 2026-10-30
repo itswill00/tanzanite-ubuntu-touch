@@ -9,6 +9,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
 Artifacts are named `tanzanite-ut<UT>-halium<H>-v<version>-<date>-<commit>.zip`. Only the newest
 artifact is linked from the README; older ones remain under their release tags.
 
+## [1.1.1] — 2026-10-30
+
+Hotfix from the first on-device test of 1.1.0. Torch and vibration verified working; audio did
+not survive contact with the hardware — PulseAudio aborted in a loop.
+
+### Fixed
+
+**PulseAudio no longer crash-loops on speaker playback.** The stock
+`aurisys_config.xml` runs `aurisys_demo` + `sia81xx_sixth` in the SMARTPA scenario; on Ubuntu
+Touch that chain aborts PulseAudio with a SIGBUS through libhybris before one frame is written.
+The scenario now runs `misoundcrossfade` + `misound` (the proven `PLAYBACK_NORMAL` chain), while
+the kernel `snd_soc_sipa` driver keeps powering the SiA amplifier. On-device evidence, diagnosis
+and A/B steps: [`docs/releases/v1.1.1.md`](docs/releases/v1.1.1.md).
+
+### Known issues
+
+- Camera still crash-loops (`camerahalserver` signal 6 every ~5 s). Next in line.
+- `audio_policy_configuration.xml` is still the hand-written file; to be replaced with the stock
+  one once audio is confirmed working.
+
 ---
 
 ## [1.1.0] — 2026-10-29

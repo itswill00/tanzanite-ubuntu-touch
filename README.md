@@ -105,10 +105,14 @@ Version pairing is fixed by the device's vendor blobs:
 
 If you just want to install, use the prebuilt installer:
 
-- **Download:** [GitHub Releases — v1.1.0](https://github.com/itswill00/tanzanite-ubuntu-touch/releases/tag/v1.1.0)
-  (mirror: <https://gofile.io/d/xkyY3FRJ>)
-- **File:** `tanzanite-ut20.04-halium12-v1.1.0-20261029-b4e45b1.zip` (933 MiB)
-- **SHA-256:** `99b429d6292f8220ed25065e1dd70dd6432447505dd04c4a8a681924cd1d9aca`
+- **Download:** [GitHub Releases — v1.1.1](https://github.com/itswill00/tanzanite-ubuntu-touch/releases/tag/v1.1.1)
+- **File:** `tanzanite-ut20.04-halium12-v1.1.1-20261030-a8d594e.zip` (927 MiB)
+- **SHA-256:** `b4804db36e71b6918f5b4cc457aba45f90c07acba8c557376c28c7b4d1a68374`
+
+> 1.1.1 is a hotfix for the audio crash loop found in the first on-device test of 1.1.0
+> (PulseAudio aborting with SIGBUS on speaker playback). See
+> [`docs/releases/v1.1.1.md`](docs/releases/v1.1.1.md). Torch and vibration from 1.1.0 are
+> unaffected.
 
 Full step-by-step instructions, including the mandatory ext4 reformat and the slot-A dual-boot
 layout, are in:
@@ -409,7 +413,7 @@ beyond fastboot recovery. Read [`docs/BOOTLOADER.md`](docs/BOOTLOADER.md) before
 ## Changelog
 
 Release notes for every version, including what was broken and why, live in
-[`CHANGELOG.md`](CHANGELOG.md). Current version: **1.1.0**.
+[`CHANGELOG.md`](CHANGELOG.md). Current version: **1.1.1**.
 
 ## License
 

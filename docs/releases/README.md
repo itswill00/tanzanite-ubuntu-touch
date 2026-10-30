@@ -5,6 +5,7 @@ versioned with the code that implements it. The same text is used as the GitHub 
 
 | Version | Date | Summary | Notes |
 | --- | --- | --- | --- |
+| 1.1.1 | 2026-10-30 | Audio crash loop fixed (SMARTPA Aurisys chain) | [v1.1.1.md](v1.1.1.md) |
 | 1.1.0 | 2026-10-29 | Audio, torch, vibration and camera fixed | [v1.1.0.md](v1.1.0.md) |
 
 ## Older, unversioned builds
