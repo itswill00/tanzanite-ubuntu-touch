@@ -73,8 +73,8 @@
         <!-- for aurisys_scene playback smartpa -->
         <aurisys_scenario aurisys_scenario="AURISYS_SCENARIO_PLAYBACK_SMARTPA">
             <downlink_library_name_list digital_gain_lib_name="">
-                <library name="aurisys_demo"/>
-                <library name="sia81xx_sixth"/>
+                <library name="misoundcrossfade"/>
+                <library name="misound"/>
             </downlink_library_name_list>
         </aurisys_scenario>
         <!-- for aurisys_scene HDR record -->

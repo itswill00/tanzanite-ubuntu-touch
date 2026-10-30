@@ -90,11 +90,20 @@ explained in [`docs/BINARIES.md`](docs/BINARIES.md). Do not "clean it up".
 
 ## Changing the audio configuration
 
-`overlay/system/usr/share/halium-overlay/vendor/etc/aurisys_config.xml` must stay byte-identical to
-the stock file from firmware `OS2.0.214.0.VOGEUXM`. It is 28.8 KB and names the libraries the
-hardware actually uses. The previous 4.4 KB file named a RT5512 amplifier that this device does not
-have, and pointed at libraries that exist nowhere — that is what broke audio, and it took a firmware
-comparison to notice.
+`overlay/system/usr/share/halium-overlay/vendor/etc/aurisys_config.xml` is the stock file from
+firmware `OS2.0.214.0.VOGEUXM` with **one deliberate divergence**: the
+`AURISYS_SCENARIO_PLAYBACK_SMARTPA` downlink list. Stock uses `aurisys_demo` + `sia81xx_sixth`
+(`libsixth.so`, the SiA smart-amp userspace library). On Ubuntu Touch that library kills
+PulseAudio with a SIGBUS through libhybris before a single frame is written, leaving the PCM
+device in `PREPARED` with `appl_ptr == 0` forever. The overlay instead runs
+`misoundcrossfade` + `misound` — the pair the `PLAYBACK_NORMAL` scenario already uses and that
+is proven to produce output. The kernel `snd_soc_sipa` driver keeps powering and programming the
+SiA amp itself (`Ext_Speaker_Amp Switch`, `SpkrLeft/Right Sipa Power`), so speaker output
+survives without the userspace smart-amp DSP chain. Everything else in the file must stay
+byte-identical to stock.
+
+Line endings matter. `.gitattributes` marks the vendor tree `-text` so git never normalises the CRLF
+in `sixth_param*.txt` and `audio_param*/*.xml`. Do not remove that rule.
 
 Line endings matter. `.gitattributes` marks the vendor tree `-text` so git never normalises the CRLF
 in `sixth_param*.txt` and `audio_param*/*.xml`. Do not remove that rule.
