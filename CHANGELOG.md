@@ -22,8 +22,11 @@ Base OS upgrade from Ubuntu Touch 20.04 (Focal) to **24.04-2.x (Noble)**.
 - Installer artifact naming `ut20.04` → `ut24.04`; docs, guides and switcher app updated.
 - Audio crash/SmartPA fixes curated from `iprjkt/tanzanite-halium` (libsixth spinlock patch,
   libsndcardparser stub, `HYBRIS_LD_LIBRARY_PATH`, `aurisys_demo`).
+- Kernel base moved from the personal fork `iprjkt/evernight-gki` to the official Google ACK
+  `android12-5.10-lts` (5.10.272). The tanzanite defconfig and device tree now live in
+  `kernel-overlay/` and are applied by `scripts/apply_kernel_overlay.sh`.
 
-Halium 12 and the 5.10 GKI kernel are unchanged.
+Halium 12 is unchanged; the kernel stays on the 5.10 GKI line.
 
 ## [1.1.1] — 2026-10-30
 

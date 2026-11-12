@@ -107,7 +107,7 @@ tanzanite.build.ut_release=${UT_RELEASE}
 tanzanite.build.halium=${HALIUM_VERSION}
 tanzanite.build.date=${BUILD_STAMP}
 tanzanite.build.commit=${GIT_SHORT}${GIT_DIRTY}
-tanzanite.build.kernel=5.10.269-EvernightKernel-1.1
+tanzanite.build.kernel=5.10.272-tanzanite
 tanzanite.build.modules=385
 tanzanite.build.installer=${ZIP_NAME}
 MANIFEST
@@ -134,7 +134,7 @@ halium        $HALIUM_VERSION
 device        $DEVICE_CODENAME
 commit        $GIT_SHORT$GIT_DIRTY
 built         $BUILD_STAMP
-kernel        5.10.269-EvernightKernel-1.1
+kernel        5.10.272-tanzanite
 modules       385
 INFO
 

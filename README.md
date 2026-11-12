@@ -96,7 +96,7 @@ Version pairing is fixed by the device's vendor blobs:
 | Android vendor base | 12 | stock HyperOS `OS2.0.214.0.VOGEUXM` |
 | Halium | 12 | `deviceinfo_halium_version="12"` |
 | Ubuntu Touch rootfs | 24.04-2.x Noble | channel `24.04-2.x/arm64/android9plus/stable` |
-| Kernel | 5.10.269 GKI | EvernightKernel, AppArmor + ThinLTO + CFI |
+| Kernel | 5.10.272 GKI | Google ACK `android12-5.10-lts`, AppArmor + ThinLTO + CFI |
 | Boot image header | v4 | GKI device, `vendor_boot` carries the ramdisk + dtb |
 
 ---
@@ -144,10 +144,13 @@ sudo apt install -y git clang-14 lld-14 llvm-14 libclang-rt-14-dev libssl-dev li
 ### 2. Get the kernel
 
 ```bash
-git clone --depth=1 https://github.com/iprjkt/evernight-gki kernel
+git clone --depth=1 --branch android12-5.10-lts \
+    https://android.googlesource.com/kernel/common kernel
+./scripts/apply_kernel_overlay.sh kernel
 ```
 
-The defconfig used is `arch/arm64/configs/tanzanite_defconfig`. It must provide:
+The defconfig used is `kernel-overlay/configs/tanzanite_defconfig`, copied in by
+`scripts/apply_kernel_overlay.sh` along with the device tree. It must provide:
 
 ```
 CONFIG_SECURITY_APPARMOR=y   # required by Ubuntu Touch app confinement
@@ -315,7 +318,7 @@ This work stands on several projects. All credit for the hard parts goes to them
 | Project | Role |
 | --- | --- |
 | [iprjkt/tanzanite-halium](https://github.com/iprjkt/tanzanite-halium) | Original Halium 12 port for tanzanite: `deviceinfo`, overlay, installer, switcher app. **Base of this repository.** |
-| [iprjkt/evernight-gki](https://github.com/iprjkt/evernight-gki) | GKI 5.10 kernel with AppArmor enabled for Halium |
+| [Google ACK `android12-5.10-lts`](https://android.googlesource.com/kernel/common) | GKI 5.10 kernel base. Tanzanite defconfig + device tree are vendored in `kernel-overlay/`. |
 | [UBports](https://ubports.com) / [docs.ubports.com](https://docs.ubports.com) | Porting documentation, rootfs, Halium GSI, build tools |
 | [Halium](https://halium.org) | Android/Linux hardware abstraction |
 | [libhybris](https://github.com/libhybris/libhybris) | Android driver compatibility layer |
@@ -418,5 +421,6 @@ Release notes for every version, including what was broken and why, live in
 ## License
 
 - Contents derived from `iprjkt/tanzanite-halium`: Apache-2.0, see [`LICENSE`](LICENSE).
-- Kernel sources are GPL-2.0 (`iprjkt/evernight-gki`).
+- Kernel is Google ACK (GPL-2.0). The tanzanite defconfig and device tree in `kernel-overlay/`
+  are GPL-2.0 from `iprjkt/evernight-gki`.
 - Patches and documentation added here: Apache-2.0.

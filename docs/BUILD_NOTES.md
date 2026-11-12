@@ -26,7 +26,7 @@ to be re-run by hand.
 | Stage | Wall time | Notes |
 | --- | --- | --- |
 | `apt install` toolchain | ~2 min | clang-14, lld-14, llvm-14, libclang-rt-14-dev, dtc, img2simg, fakeroot |
-| Clone `evernight-gki` (depth 1) | ~1 min | 1.4 GB, 71,084 files |
+| Clone ACK `android12-5.10-lts` (depth 1) | ~2 min | Google common kernel tree |
 | `tanzanite_defconfig` | ~10 s | |
 | `make -j8` compile | ~7 min | 4,485 objects, ~475/min |
 | `LTO vmlinux.o` (ThinLTO final link) | **~15 min** | single-threaded, `ld.lld` at 99% CPU, 1.5 GB RSS |
@@ -39,7 +39,8 @@ to be re-run by hand.
 
 ## Kernel configuration
 
-The defconfig is `arch/arm64/configs/tanzanite_defconfig` from `iprjkt/evernight-gki`.
+The defconfig is `kernel-overlay/configs/tanzanite_defconfig`, copied into the ACK tree by
+`scripts/apply_kernel_overlay.sh`.
 Relevant resolved options:
 
 ```
@@ -48,10 +49,10 @@ CONFIG_SECURITY_APPARMOR_HASH=y
 CONFIG_LTO_CLANG_THIN=y
 CONFIG_CFI_CLANG=y
 CONFIG_CFI_CLANG_SHADOW=y
-CONFIG_LOCALVERSION="-EvernightKernel-1.1"
+CONFIG_LOCALVERSION="-tanzanite"
 ```
 
-Resulting release string: `5.10.269-EvernightKernel-1.1`.
+Resulting release string: `5.10.272-tanzanite`.
 
 `CONFIG_SECURITY_APPARMOR=y` is the one that matters for Ubuntu Touch: without it the port boots
 but application confinement (`apparmor-easyprof-ubuntu_*` profiles shipped in the overlay) cannot

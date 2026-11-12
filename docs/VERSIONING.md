@@ -62,7 +62,7 @@ tanzanite.build.ut_release=ut24.04
 tanzanite.build.halium=halium12
 tanzanite.build.date=2026-10-29T05:00:00Z
 tanzanite.build.commit=18297c7
-tanzanite.build.kernel=5.10.269-EvernightKernel-1.1
+tanzanite.build.kernel=5.10.272-tanzanite
 tanzanite.build.modules=385
 tanzanite.build.installer=tanzanite-ut24.04-halium12-v1.2.0-20261112-xxxxxxxx.zip
 ```

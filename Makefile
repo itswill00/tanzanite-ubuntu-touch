@@ -44,7 +44,7 @@ sync: ## Regenerate the module load lists from the .ko files present
 
 .PHONY: kernel
 kernel: ## Build the Halium kernel (expects ./kernel checked out)
-	@test -d kernel || { echo "clone iprjkt/evernight-gki into ./kernel first"; exit 1; }
+	@test -d kernel || { echo "clone ACK android12-5.10-lts into ./kernel and run scripts/apply_kernel_overlay.sh first"; exit 1; }
 	cd kernel && make O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 tanzanite_defconfig
 	cd kernel && make O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 -j"$$(nproc)"
 

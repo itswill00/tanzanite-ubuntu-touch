@@ -28,8 +28,8 @@ WORKSPACE="${WORKSPACE:-$REPO/build-workspace}"
 KERNEL_SRC="${KERNEL_SRC:-$WORKSPACE/kernel}"
 JOBS="${JOBS:-$(nproc)}"
 
-KERNEL_REPO="https://github.com/iprjkt/evernight-gki"
-KERNEL_BRANCH="main"
+KERNEL_REPO="https://android.googlesource.com/kernel/common"
+KERNEL_BRANCH="android12-5.10-lts"
 DEFCONFIG="tanzanite_defconfig"
 KERNEL_ARCH="arm64"
 KERNEL_LLVM_ARGS=(ARCH="$KERNEL_ARCH" LLVM=1 LLVM_IAS=1)
@@ -66,6 +66,9 @@ else
         step "Cloning kernel ($KERNEL_REPO)"
         git clone --depth=1 --single-branch --branch "$KERNEL_BRANCH" "$KERNEL_REPO" "$KERNEL_SRC"
     fi
+
+    step "Applying device kernel overlay (tanzanite)"
+    "$REPO/scripts/apply_kernel_overlay.sh" "$KERNEL_SRC"
 
     step "Configuring kernel ($DEFCONFIG)"
     make -C "$KERNEL_SRC" O=out "${KERNEL_LLVM_ARGS[@]}" "$DEFCONFIG"

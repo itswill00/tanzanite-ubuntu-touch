@@ -29,7 +29,7 @@ Expect a best-effort response. There is no SLA and no bounty.
   `overlay/system/usr/share/halium-overlay/vendor/`. These are MediaTek and Xiaomi binaries
   redistributed unmodified from stock firmware. Report those to the vendor. See
   [`docs/BINARIES.md`](docs/BINARIES.md) for provenance.
-- Vulnerabilities in the kernel (`iprjkt/evernight-gki`) or in Ubuntu Touch / Halium / libhybris.
+- Vulnerabilities in the kernel (Google ACK `android12-5.10-lts`) or in Ubuntu Touch / Halium / libhybris.
   Report upstream.
 - The fact that the installer disables AVB. That is deliberate and documented; it is required for
   the port to boot. What *is* in scope is the installer failing to do it correctly, or doing it to
