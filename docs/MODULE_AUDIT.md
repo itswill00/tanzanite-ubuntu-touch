@@ -80,8 +80,10 @@ firmware .tgz (7.3 GB)
             └── fsck.erofs --extract -> lib/modules/*.ko  (202 files)
 ```
 
-202 modules, **178 of which were absent** from this repository. All 178 are now shipped; the total
-is 385 modules and `modules.load` is regenerated to match.
+202 modules, **178 of which were absent** from this repository. All 178 are now in the tracked
+`modules.load`; the total is 385 entries. Since v1.1.1 the installer packs only the 207 first-stage
+`.ko` into `vendor_boot` and leaves the 178 `vendor_dlkm` modules to the mounted partition, so
+`modules.load` names 385 modules while the ramdisk carries 207 files.
 
 ### What each broken feature was missing
 

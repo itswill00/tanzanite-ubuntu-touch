@@ -142,8 +142,9 @@ if ! compgen -G "$MODDIR/*.ko" >/dev/null; then
         || die "vendor modules checksum mismatch"
     tar -C "$MODDIR" -xzf "$mt"
     echo "    $(compgen -G "$MODDIR/*.ko" | wc -l) modules"
-    # Keep the generated load lists in sync with the set we just fetched.
-    "$REPO/scripts/sync_modules_load.sh"
+    # modules.load is tracked and also names the stage-2 vendor_dlkm modules;
+    # regenerating it from this partial set is unnecessary (and would reorder
+    # the list), so only the rootfs-side list is refreshed here.
     "$REPO/scripts/sync_modules_load_conf.sh"
 fi
 

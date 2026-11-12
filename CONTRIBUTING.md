@@ -73,17 +73,20 @@ Signed-off-by: Your Name <you@example.com>
 
 ## Changing the module set
 
-The module set is the most fragile part of this port. Never edit `modules.load` or
-`modules-load.d/tanzanite.conf` by hand — they are generated:
+The module set is the most fragile part of this port. Both lists are generated; do not edit them by
+hand:
 
 ```bash
-./scripts/sync_modules_load.sh        # from the .ko files present
+./scripts/sync_modules_load.sh        # local .ko + preserved vendor_dlkm names
 ./scripts/sync_modules_load_conf.sh
 ```
 
-To add modules, drop the `.ko` into `vendor-ramdisk-overlay/lib/modules/` and regenerate. To obtain
-them, see [`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md): they live on `vendor_dlkm` inside
-`super.img`, not in `vendor_boot`.
+`modules.load` has two stages: the `.ko` packed into `vendor_boot` (currently 207) and the names of
+modules supplied by the mounted `vendor_dlkm` partition (currently 178). The sync script preserves
+the stage-2 names, so regenerating from a checkout with only the 207 local files does not drop them.
+To add a stage-1 module, drop its `.ko` into `vendor-ramdisk-overlay/lib/modules/` and run the
+script. To obtain the vendor set, see [`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md): those modules
+live on `vendor_dlkm` inside `super.img`, not in `vendor_boot`.
 
 The vendor `.ko` are **not** tracked by git (`*.ko` is gitignored) because they are ~63 MB of
 MediaTek binaries. `scripts/build-all.sh` fetches the published module set (release asset, sha256

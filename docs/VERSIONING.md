@@ -56,16 +56,20 @@ Every build produces three files in `dist/`:
 The zip carries `META-INF/tanzanite/build.prop`:
 
 ```
-tanzanite.build.version=1.1.0
+tanzanite.build.version=1.2.0
 tanzanite.build.device=tanzanite
 tanzanite.build.ut_release=ut24.04
 tanzanite.build.halium=halium12
-tanzanite.build.date=2026-10-29T05:00:00Z
-tanzanite.build.commit=18297c7
+tanzanite.build.date=2026-11-12T00:00:00Z
+tanzanite.build.commit=xxxxxxx
 tanzanite.build.kernel=5.10.272-tanzanite
 tanzanite.build.modules=385
+tanzanite.build.modules_ramdisk=207
 tanzanite.build.installer=tanzanite-ut24.04-halium12-v1.2.0-20261112-xxxxxxxx.zip
 ```
+
+`modules` counts `modules.load` entries (stage-1 `.ko` packed into `vendor_boot` plus stage-2
+`vendor_dlkm` names); `modules_ramdisk` counts the `.ko` files actually packed into `vendor_boot`.
 
 The installer copies it to `/data/ubuntu/etc/tanzanite-build.prop` and prints the version during
 flashing, so a device can always report which build it is running:

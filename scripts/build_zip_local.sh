@@ -42,6 +42,13 @@ else
 fi
 DEVICE_CODENAME="tanzanite"
 
+# vendor_boot ships the local .ko; modules.load also names the stage-2
+# vendor_dlkm modules that the device mounts separately.
+MODULE_DIR="$ROOT/vendor-ramdisk-overlay/lib/modules"
+MODULE_COUNT="$(find "$MODULE_DIR" -maxdepth 1 -type f -name '*.ko' 2>/dev/null | wc -l)"
+LOAD_COUNT="$(grep -vcE '^[[:space:]]*#|^[[:space:]]*$' "$MODULE_DIR/modules.load" 2>/dev/null || true)"
+LOAD_COUNT="${LOAD_COUNT:-0}"
+
 ZIP_NAME="${DEVICE_CODENAME}-${UT_RELEASE}-${HALIUM_VERSION}-v${PORT_VERSION}-${BUILD_DATE}-${GIT_SHORT}${GIT_DIRTY}.zip"
 TARGET="${TARGET:-$ROOT/dist/$ZIP_NAME}"
 
@@ -108,7 +115,8 @@ tanzanite.build.halium=${HALIUM_VERSION}
 tanzanite.build.date=${BUILD_STAMP}
 tanzanite.build.commit=${GIT_SHORT}${GIT_DIRTY}
 tanzanite.build.kernel=5.10.272-tanzanite
-tanzanite.build.modules=385
+tanzanite.build.modules=${LOAD_COUNT}
+tanzanite.build.modules_ramdisk=${MODULE_COUNT}
 tanzanite.build.installer=${ZIP_NAME}
 MANIFEST
 
@@ -135,7 +143,8 @@ device        $DEVICE_CODENAME
 commit        $GIT_SHORT$GIT_DIRTY
 built         $BUILD_STAMP
 kernel        5.10.272-tanzanite
-modules       385
+modules       ${LOAD_COUNT} entries
+modules_ramdisk ${MODULE_COUNT} .ko in vendor_boot
 INFO
 
 echo "[+] Done: $TARGET"
