@@ -142,6 +142,9 @@ if ! compgen -G "$MODDIR/*.ko" >/dev/null; then
         || die "vendor modules checksum mismatch"
     tar -C "$MODDIR" -xzf "$mt"
     echo "    $(compgen -G "$MODDIR/*.ko" | wc -l) modules"
+    # Keep the generated load lists in sync with the set we just fetched.
+    "$REPO/scripts/sync_modules_load.sh"
+    "$REPO/scripts/sync_modules_load_conf.sh"
 fi
 
 # --------------------------------------------------------- build tools setup ---

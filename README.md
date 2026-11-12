@@ -220,21 +220,21 @@ export OTA_CHANNEL="24.04-2.x/arm64/android9plus/stable"
 
 ## Build outputs
 
-Produced by the build described above, on an aarch64 Ubuntu 24.04 host with clang-14:
+Produced by the build described above, on an x86_64 Ubuntu 24.04 host cross-compiling with clang
+(`CROSS_COMPILE=aarch64-linux-gnu-`). `rootfs.img` / `system.img` come only from the optional step 6
+and are not part of the recovery installer path.
 
 | Artifact | Size | Notes |
 | --- | --- | --- |
-| `Image` | 34,933,028 B | arm64 kernel, magic `ARMd` |
-| `Image.gz` | 13,466,550 B | |
+| `Image` | 35,220,712 B | arm64 kernel, magic `ARMd` |
+| `Image.gz` | 13,248,618 B | |
 | `tanzanite.dtb` | 178,479 B | |
 | `tanzanite-overlay.dtb` | 135,443 B | |
 | `dtbo.img` | 135,507 B | magic `d7b7ab1e`, 1 entry |
 | `boot.img` | 67,108,864 B | header v4, AVB hash footer |
 | `vendor_boot.img` | 67,108,864 B | header v4, kernel@`0x40000000`, ramdisk@`0x66f00000`, tags/dtb@`0x47c80000` |
-| `device_tanzanite.tar.xz` | 38,280,192 B | device tarball (overlay store mode) |
-| `rootfs.img` | 3,758,096,384 B | ext4, 917,504 × 4096 B blocks |
-| `system.img` | 2,691,839,984 B | sparse (`ed26ff3a`) |
-| `tanzanite-halium.zip` | 962,716,095 B | recovery installer |
+| `device_tanzanite.tar.xz` | 31,864,824 B | device tarball (overlay store mode) |
+| `tanzanite-ut24.04-halium12-v1.2.0-*.zip` | 1,179,271,868 B | recovery installer |
 
 Verified: `md5sum` of `boot.img`, `vendor_boot.img` and `dtbo.img` inside the zip are **identical**
 to those in `device_tanzanite.tar.xz`, so the installer ships the kernel built from this recipe.

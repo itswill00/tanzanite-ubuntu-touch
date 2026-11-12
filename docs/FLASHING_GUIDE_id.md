@@ -20,7 +20,7 @@ Panduan langkah demi langkah untuk menginstal **Ubuntu Touch 24.04 (Noble Numbat
 
 ### File yang Dibutuhkan
 1. **`Format-Data-Ext4-Tanzanite.zip`**: File flashable recovery untuk memformat partisi `userdata` ke ext4 tanpa enkripsi (mengatasi kendala bawaan GUI OrangeFox).
-2. **`tanzanite-halium.zip`**: File installer recovery utama (berisi kernel Halium, patch vendor, patch AVB, rootfs Ubuntu Touch, dan overlay driver).
+2. **`installer.zip`**: berkas installer recovery. Aset rilis dinamai `tanzanite-ut<UT>-halium12-v<version>-<date>-<commit>.zip`; ganti namanya jadi `installer.zip` untuk perintah di bawah (atau sesuaikan dengan nama asli). Berisi kernel Halium, patch vendor, patch AVB, rootfs Ubuntu Touch, dan overlay driver.
 3. **`TanzaniteSwitcher-v1.0.0.apk`**: Aplikasi Android untuk berpindah sistem operasi secara instan.
 4. Kartu MicroSD atau flashdisk OTG (atau komputer dengan kabel data untuk ADB sideload / push).
 
@@ -66,16 +66,16 @@ Panduan langkah demi langkah untuk menginstal **Ubuntu Touch 24.04 (Noble Numbat
    - Jika saat ini berada di Slot B, ubah ke Slot A lalu reboot kembali ke recovery.
    - Slot B dibiarkan utuh sebagai cadangan darurat (fallback) HyperOS bawaan.
 
-### Langkah 4: Flash Installer `tanzanite-halium.zip`
+### Langkah 4: Flash Installer `installer.zip`
 1. Hubungkan ponsel ke komputer menggunakan kabel data atau pasang MicroSD / OTG.
-2. Kirim file `tanzanite-halium.zip` ke perangkat:
+2. Kirim file `installer.zip` ke perangkat:
    ```bash
-   adb push tanzanite-halium.zip /sdcard/
+   adb push installer.zip /sdcard/
    # atau jika storage belum ter-mount:
-   adb push tanzanite-halium.zip /tmp/
+   adb push installer.zip /tmp/
    ```
 3. Di recovery, buka menu **Install** / **Files**.
-4. Pilih file `tanzanite-halium.zip` lalu geser konfirmasi pemasangan.
+4. Pilih file `installer.zip` lalu geser konfirmasi pemasangan.
 5. Proses instalasi akan berjalan secara otomatis:
    - Mem-patch `/vendor/etc/fstab.mt6789` untuk mengarahkan userdata ke ext4 tanpa enkripsi.
    - Menonaktifkan verifikasi AVB dan dm-verity pada `vbmeta`, `vbmeta_system`, dan `vbmeta_vendor`.
@@ -130,7 +130,7 @@ Jika aplikasi di HyperOS tidak dapat membaca galeri, folder unduhan, atau `/sdca
 
 ### Kendala Dependensi Paket `apt install` di Ubuntu Touch
 - **Penyebab**: Mekanisme sandbox user `_apt` tidak didukung pada container Halium, dan paket metapackage lama merujuk ke driver HWC1 yang sudah tidak digunakan.
-- **Solusi**: File installer `tanzanite-halium.zip` sudah mengatur konfigurasi ini secara default. Jika memperbaiki instalasi manual, pastikan baris berikut tersimpan di `/etc/apt/apt.conf.d/90-android-sandbox.conf`:
+- **Solusi**: File installer `installer.zip` sudah mengatur konfigurasi ini secara default. Jika memperbaiki instalasi manual, pastikan baris berikut tersimpan di `/etc/apt/apt.conf.d/90-android-sandbox.conf`:
   ```text
   APT::Sandbox::User "root";
   ```

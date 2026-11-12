@@ -125,7 +125,7 @@ $ mkdtboimg.py dump dtbo.img      -> magic d7b7ab1e, 1 entry, dt_size 135443
 $ dumpe2fs -h rootfs.img          -> 917504 blocks x 4096, metadata_csum
 $ od -An -tx4 system.img          -> ed26ff3a (sparse)
 $ debugfs -R "cat /usr/lib/os-release" rootfs.img
-                                  -> Ubuntu 20.04.6 LTS (Focal Fossa)
+                                  -> Ubuntu 20.04.6 LTS (Focal Fossa)   [1.1.x Focal build]
 $ md5sum boot.img vendor_boot.img dtbo.img
                                   -> identical between out/ and images/
 ```

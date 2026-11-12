@@ -6,10 +6,10 @@ Binaries are **not** stored in git. This directory holds only checksums and poin
 
 | Field | Value |
 | --- | --- |
-| File | `tanzanite-ut24.04-halium12-v1.2.0-20261112-413d968.zip` |
-| Size | 1162774512 bytes (1109 MiB) |
-| SHA-256 | `d00498a112994a54c14da73dd027a9a939f10bc8ee3e7603cf5383a931e8ed44` |
-| MD5 | `b95c9279de7ad1d42dbdeefa9deef4c0` |
+| File | `tanzanite-ut24.04-halium12-v1.2.0-20261112-dd7e322.zip` |
+| Size | 1179271868 bytes (1125 MiB) |
+| SHA-256 | `2c6d81b7b64e282792035c8efb3dda9f41f2b5c9101b935251f3e00f0baf3392` |
+| MD5 | `585671dfed5f7c67ddf60b8b222f185f` |
 | Download | https://github.com/itswill00/tanzanite-ubuntu-touch/releases/tag/v1.2.0 |
 
 The v1.1.1 and v1.1.0 builds and their checksums remain recorded under their own
@@ -24,7 +24,7 @@ Rebuild it with `./scripts/build_zip_local.sh` (see `docs/BUILD_NOTES.md`).
 | `ubuntu-touch-hybris-rootfs-arm64.tar.gz` | UT Noble arm64 rootfs |
 | `halium_halium_arm64.tar.xz` | Halium 12 GSI (contains android-rootfs.img) |
 | `partitions/boot.img` | Halium boot image, header v4 |
-| `partitions/vendor_boot.img` | Halium vendor_boot, header v4, carries ramdisk + dtb |
+| `partitions/vendor_boot.img` | Halium vendor_boot, header v4, carries the 207 vendor modules + dtb |
 | `partitions/dtbo.img` | Device tree overlay |
 | `device_tanzanite.tar.xz` | Device tarball |
 | `device_tanzanite_system.tar.gz` | Rootfs overlay (udev, ofono, audio, libhybris) |
@@ -32,15 +32,17 @@ Rebuild it with `./scripts/build_zip_local.sh` (see `docs/BUILD_NOTES.md`).
 | `tools/*` | busybox, avbctl, erofs tools, lptools |
 | `META-INF/com/google/android/update-binary` | Installer logic |
 
-## Prebuilt kernel
+## Prebuilt kernel and modules
 
-`scripts/build-all.sh` uses a prebuilt kernel object by default. It is published as a release asset,
-not stored in git:
+`scripts/build-all.sh` uses a prebuilt kernel object by default, and fetches the vendor module set
+when the tree has no `.ko`. Both are published as release assets, not stored in git:
 
 | Field | Value |
 | --- | --- |
 | File | `kernel-5.10.272-tanzanite-prebuilt.tar.gz` |
 | SHA-256 | `3b72126b5818d5636ca15d7ab142b91519486ce5675e4ea642adeab3fab86d66` |
+| File | `vendor-modules-5.10.236-tanzanite.tar.gz` (207 `.ko`) |
+| SHA-256 | `bcf8cd7a77b4984af0e783cf4f911fe34e43eddcb8c06a6736ed4aa2677a24f2` |
 | Download | https://github.com/itswill00/tanzanite-ubuntu-touch/releases/tag/kernel-5.10.272-tanzanite |
 
 ## Images produced alongside (not uploaded)

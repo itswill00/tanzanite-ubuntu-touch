@@ -85,8 +85,11 @@ To add modules, drop the `.ko` into `vendor-ramdisk-overlay/lib/modules/` and re
 them, see [`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md): they live on `vendor_dlkm` inside
 `super.img`, not in `vendor_boot`.
 
-`vendor-ramdisk-overlay/lib/modules/` is ~63 MB of vendor binaries. That is intentional and
-explained in [`docs/BINARIES.md`](docs/BINARIES.md). Do not "clean it up".
+The vendor `.ko` are **not** tracked by git (`*.ko` is gitignored) because they are ~63 MB of
+MediaTek binaries. `scripts/build-all.sh` fetches the published module set (release asset, sha256
+verified) when the tree has no `.ko`; to rebuild the set from firmware, see
+[`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md). Locally dropped `.ko` files are ignored by git, so
+they never end up in a commit.
 
 ## Changing the audio configuration
 

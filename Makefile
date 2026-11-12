@@ -43,10 +43,13 @@ sync: ## Regenerate the module load lists from the .ko files present
 	@./scripts/sync_modules_load_conf.sh
 
 .PHONY: kernel
-kernel: ## Build the Halium kernel (expects ./kernel checked out)
-	@test -d kernel || { echo "clone ACK android12-5.10-lts into ./kernel and run scripts/apply_kernel_overlay.sh first"; exit 1; }
-	cd kernel && make O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 tanzanite_defconfig
-	cd kernel && make O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 -j"$$(nproc)"
+kernel: ## Compile the kernel from ACK source (optional; the default build uses the prebuilt kernel)
+	@test -d kernel || { echo "clone ACK android12-5.10-lts into ./kernel first"; exit 1; }
+	@./scripts/apply_kernel_overlay.sh kernel
+	@cc=""; [ "$$(uname -m)" != aarch64 ] && cc="CROSS_COMPILE=$${CROSS_COMPILE:-aarch64-linux-gnu-}"; \
+	  cd kernel && make O=out ARCH=arm64 $$cc LLVM=1 LLVM_IAS=1 tanzanite_defconfig && \
+	  make O=out ARCH=arm64 $$cc LLVM=1 LLVM_IAS=1 -j"$$(nproc)" && \
+	  make O=out ARCH=arm64 $$cc LLVM=1 LLVM_IAS=1 dtbs
 
 .PHONY: images
 images: ## Assemble boot/vendor_boot/dtbo + device tarball

@@ -20,7 +20,7 @@ Step-by-step installation guide for setting up **Ubuntu Touch 24.04 (Noble Numba
 
 ### Required Files
 1. **`Format-Data-Ext4-Tanzanite.zip`**: Flashable recovery utility to format the `userdata` partition to clean unencrypted ext4 (fixes OrangeFox GUI format bugs).
-2. **`tanzanite-halium.zip`**: Main flashable recovery installer package (contains Halium kernel, vendor fstab patch, AVB patch, Ubuntu Touch rootfs, and device overlay).
+2. **`installer.zip`**: the recovery installer asset. Release assets are named `tanzanite-ut<UT>-halium12-v<version>-<date>-<commit>.zip`; rename it to `installer.zip` for the commands below (or substitute the real name). Contains the Halium kernel, vendor fstab patch, AVB patch, Ubuntu Touch rootfs, and device overlay.
 3. **`TanzaniteSwitcher-v1.0.0.apk`**: Native Android companion app for 1-tap switching.
 4. MicroSD card or USB OTG flash drive (or a computer with ADB cable for ADB sideload / push).
 
@@ -66,16 +66,16 @@ Step-by-step installation guide for setting up **Ubuntu Touch 24.04 (Noble Numba
    - If currently set to Slot B, switch to Slot A and reboot into recovery once more.
    - Slot B is kept untouched as a clean stock HyperOS fallback slot.
 
-### Step 4: Flash `tanzanite-halium.zip`
+### Step 4: Flash `installer.zip`
 1. Connect the phone to your computer or insert your MicroSD/OTG drive.
-2. Push or copy `tanzanite-halium.zip` to the device:
+2. Push or copy `installer.zip` to the device:
    ```bash
-   adb push tanzanite-halium.zip /sdcard/
+   adb push installer.zip /sdcard/
    # or if storage is not mounted yet:
-   adb push tanzanite-halium.zip /tmp/
+   adb push installer.zip /tmp/
    ```
 3. In recovery, go to **Install** / **Files**.
-4. Select `tanzanite-halium.zip` and swipe to confirm.
+4. Select `installer.zip` and swipe to confirm.
 5. The installer will execute the following steps automatically:
    - Patches `/vendor/etc/fstab.mt6789` to mount userdata as unencrypted ext4.
    - Disables AVB verification and dm-verity on `vbmeta`, `vbmeta_system`, and `vbmeta_vendor`.
@@ -130,7 +130,7 @@ If HyperOS apps cannot access photos, downloads, or internal storage:
 
 ### `apt install` Package Dependency Errors in Ubuntu Touch
 - **Cause**: Sandboxing for the `_apt` user fails inside Halium LXC containers, and obsolete metapackages depend on deprecated HWC1 drivers.
-- **Fix**: The `tanzanite-halium.zip` installer configures this automatically. For manual recovery, verify `/etc/apt/apt.conf.d/90-android-sandbox.conf` contains:
+- **Fix**: The `installer.zip` installer configures this automatically. For manual recovery, verify `/etc/apt/apt.conf.d/90-android-sandbox.conf` contains:
   ```text
   APT::Sandbox::User "root";
   ```
