@@ -29,6 +29,9 @@ Base OS upgrade from Ubuntu Touch 20.04 (Focal) to **24.04-2.x (Noble)**.
   asset) and verifies its sha256 before injecting it, so a rebuild no longer recompiles the kernel.
   `BUILD_KERNEL=1` compiles from source; `KERNEL_OBJ_DIR` reuses a local tree. The adaptation-tools
   patch now also switches the dtbo tool to a Python 3 `mkdtboimg` (libufdt `android13-gsi`).
+- `vendor_boot` now carries the **207 MediaTek vendor modules** again (they are gitignored, so a clean
+  checkout had none). `build-all.sh` fetches the published module set and verifies its sha256 when the
+  tree has no `.ko`.
 
 Halium 12 is unchanged; the kernel stays on the 5.10 GKI line.
 

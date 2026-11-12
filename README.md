@@ -132,6 +132,8 @@ layout, are in:
 
 The one-command path is `./scripts/build-all.sh`. By default it does **not** compile the kernel: it
 downloads a prebuilt kernel object (a release asset) and injects it via `UBPORTS_PREBUILT_KERNEL_OBJ`.
+If the tree has no vendor `.ko` (they are gitignored), it also fetches the published module set, so a
+clean checkout builds a functional `vendor_boot`.
 Set `BUILD_KERNEL=1` to compile the kernel from the Android Common Kernel source as well, or
 `KERNEL_OBJ_DIR=/path/to/out` to reuse a local kernel tree.
 

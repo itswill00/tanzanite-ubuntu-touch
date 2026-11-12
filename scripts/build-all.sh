@@ -26,6 +26,8 @@
 #   KERNEL_OBJ_DIR         use this kernel out tree, no download/build
 #   PREBUILT_KERNEL_URL    prebuilt kernel tarball (default: release asset)
 #   PREBUILT_KERNEL_SHA256 expected sha256 of that tarball
+#   PREBUILT_MODULES_URL   vendor module tarball, used when no *.ko are present
+#   PREBUILT_MODULES_SHA256 expected sha256 of that tarball
 #   SKIP_IMAGES            set to 1 to stop before the rootfs images
 #   SKIP_ZIP               set to 1 to skip the installer zip
 #   JOBS                   parallel build jobs     (default: nproc)
@@ -46,6 +48,10 @@ KERNEL_LLVM_ARGS=(ARCH="$KERNEL_ARCH" LLVM=1 LLVM_IAS=1)
 # Prebuilt kernel published as a release asset; override to pin another build.
 PREBUILT_KERNEL_URL="${PREBUILT_KERNEL_URL:-https://github.com/itswill00/tanzanite-ubuntu-touch/releases/download/kernel-5.10.272-tanzanite/kernel-5.10.272-tanzanite-prebuilt.tar.gz}"
 PREBUILT_KERNEL_SHA256="${PREBUILT_KERNEL_SHA256:-3b72126b5818d5636ca15d7ab142b91519486ce5675e4ea642adeab3fab86d66}"
+
+# MediaTek vendor modules (gitignored *.ko), fetched only when absent.
+PREBUILT_MODULES_URL="${PREBUILT_MODULES_URL:-https://github.com/itswill00/tanzanite-ubuntu-touch/releases/download/kernel-5.10.272-tanzanite/vendor-modules-5.10.236-tanzanite.tar.gz}"
+PREBUILT_MODULES_SHA256="${PREBUILT_MODULES_SHA256:-bcf8cd7a77b4984af0e783cf4f911fe34e43eddcb8c06a6736ed4aa2677a24f2}"
 
 ROOTFS_URL="${ROOTFS_URL:-https://ci.ubports.com/job/ubuntu-touch-rootfs/job/ubports%252F24.04-2.x/lastStableBuild/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz}"
 OTA_CHANNEL="${OTA_CHANNEL:-24.04-2.x/arm64/android9plus/stable}"
@@ -122,6 +128,20 @@ else
     [ -s "$KERNEL_PREBUILT/arch/$KERNEL_ARCH/boot/Image.gz" ] \
         || die "prebuilt kernel is missing arch/$KERNEL_ARCH/boot/Image.gz"
     KERNEL_OBJ="$KERNEL_PREBUILT"
+fi
+
+# ------------------------------------------------------------ vendor modules ---
+# The MediaTek .ko are gitignored (*.ko) and are not in a clean checkout. Fetch
+# the published set once so vendor_boot is not shipped module-less.
+MODDIR="$REPO/vendor-ramdisk-overlay/lib/modules"
+if ! compgen -G "$MODDIR/*.ko" >/dev/null; then
+    step "Fetching vendor kernel modules"
+    mt="$WORKSPACE/$(basename "$PREBUILT_MODULES_URL")"
+    [ -s "$mt" ] || wget -q -O "$mt" "$PREBUILT_MODULES_URL"
+    echo "$PREBUILT_MODULES_SHA256  $mt" | sha256sum -c - \
+        || die "vendor modules checksum mismatch"
+    tar -C "$MODDIR" -xzf "$mt"
+    echo "    $(compgen -G "$MODDIR/*.ko" | wc -l) modules"
 fi
 
 # --------------------------------------------------------- build tools setup ---
