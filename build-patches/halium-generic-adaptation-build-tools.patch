@@ -43,3 +43,39 @@ index 8df92b7..bb255de 100644
  
      ls .
  cd "$HERE"
+diff --git a/make-bootimage.sh b/make-bootimage.sh
+index b259b34..83b5f24 100755
+--- a/make-bootimage.sh
++++ b/make-bootimage.sh
+@@ -228,7 +228,7 @@ elif [ -n "$deviceinfo_dtb" ]; then
+     DTBS="$PREFIX${deviceinfo_dtb// / $PREFIX}"
+     if [ -n "$deviceinfo_dtb_has_dt_table" ] && $deviceinfo_dtb_has_dt_table; then
+         echo "Appending DTB partition header to DTB"
+-        python2 "$TMPDOWN/libufdt/utils/src/mkdtboimg.py" create "$DTB" $DTBS --id="${deviceinfo_dtb_id:-0x00000000}" --rev="${deviceinfo_dtb_rev:-0x00000000}" --custom0="${deviceinfo_dtb_custom0:-0x00000000}" --custom1="${deviceinfo_dtb_custom1:-0x00000000}" --custom2="${deviceinfo_dtb_custom2:-0x00000000}" --custom3="${deviceinfo_dtb_custom3:-0x00000000}"
++        python3 "$TMPDOWN/libufdt/utils/src/mkdtboimg.py" create "$DTB" $DTBS --id="${deviceinfo_dtb_id:-0x00000000}" --rev="${deviceinfo_dtb_rev:-0x00000000}" --custom0="${deviceinfo_dtb_custom0:-0x00000000}" --custom1="${deviceinfo_dtb_custom1:-0x00000000}" --custom2="${deviceinfo_dtb_custom2:-0x00000000}" --custom3="${deviceinfo_dtb_custom3:-0x00000000}"
+     else
+         cat $DTBS > $DTB
+     fi
+diff --git a/make-dtboimage.sh b/make-dtboimage.sh
+index d8f81e6..94add88 100755
+--- a/make-dtboimage.sh
++++ b/make-dtboimage.sh
+@@ -35,4 +35,4 @@ for dtbo in "${DTBOS[@]}"; do
+     i=$((i + 1))
+ done
+ 
+-python2 "$TMPDOWN/libufdt/utils/src/mkdtboimg.py" create "$OUT" $DTBO_ARGS
++python3 "$TMPDOWN/libufdt/utils/src/mkdtboimg.py" create "$OUT" $DTBO_ARGS
+diff --git a/setup_repositories.sh b/setup_repositories.sh
+index f06e09c..a3f1de8 100644
+--- a/setup_repositories.sh
++++ b/setup_repositories.sh
+@@ -192,7 +192,7 @@ setup_tooling() {
+ 
+     if ([ -n "$deviceinfo_kernel_apply_overlay" ] && $deviceinfo_kernel_apply_overlay) || [ -n "$deviceinfo_dtbo" ] || ([ -n "$deviceinfo_dtb_has_dt_table" ] && $deviceinfo_dtb_has_dt_table); then
+         clone_if_not_existing "https://android.googlesource.com/platform/external/dtc" "pie-gsi"
+-        clone_if_not_existing "https://android.googlesource.com/platform/system/libufdt" "pie-gsi"
++        clone_if_not_existing "https://android.googlesource.com/platform/system/libufdt" "android13-gsi"
+     fi
+ 
+     clone_if_not_existing "https://android.googlesource.com/platform/external/avb" "android13-gsi"

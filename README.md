@@ -130,10 +130,19 @@ layout, are in:
 
 ## Building from zero
 
+The one-command path is `./scripts/build-all.sh`. By default it does **not** compile the kernel: it
+downloads a prebuilt kernel object (a release asset) and injects it via `UBPORTS_PREBUILT_KERNEL_OBJ`.
+Set `BUILD_KERNEL=1` to compile the kernel from the Android Common Kernel source as well, or
+`KERNEL_OBJ_DIR=/path/to/out` to reuse a local kernel tree.
+
+The manual steps below build everything from scratch, including the kernel.
+
 ### 1. Host requirements
 
 Kernel compilation needs ~20 GB of disk and 8 GB RAM (ThinLTO peaks around 2 GB per linker job).
-Both **x86_64 and aarch64** hosts work — the latter needs the patch in `build-patches/`.
+Both **x86_64 and aarch64** hosts work: `build-all.sh` sets `CROSS_COMPILE=aarch64-linux-gnu-` on
+non-aarch64 hosts (install `gcc-aarch64-linux-gnu`), and the patch in `build-patches/` lets the
+adaptation tools accept a locally built kernel.
 
 ```bash
 sudo apt install -y git clang-14 lld-14 llvm-14 libclang-rt-14-dev libssl-dev libelf-dev \
@@ -174,14 +183,15 @@ incremental rebuilds take ~2 minutes instead of ~29.
 
 ```bash
 git clone https://gitlab.com/ubports/community-ports/halium-generic-adaptation-build-tools build
-# native aarch64 host? apply the patch:
+# always apply the patch: it adds UBPORTS_PREBUILT_KERNEL_OBJ support and switches
+# the dtbo tool to a Python 3 mkdtboimg (libufdt android13-gsi).
 git -C build apply ../build-patches/halium-generic-adaptation-build-tools.patch
 ```
 
 ### 5. Assemble the images
 
 ```bash
-export UBPORTS_PREBUILT_KERNEL_OBJ="$PWD/kernel/out"   # only with the patch applied
+export UBPORTS_PREBUILT_KERNEL_OBJ="$PWD/kernel/out"   # or an extracted prebuilt kernel object
 ./build.sh -b workdir
 ```
 

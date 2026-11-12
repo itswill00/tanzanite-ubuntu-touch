@@ -25,6 +25,10 @@ Base OS upgrade from Ubuntu Touch 20.04 (Focal) to **24.04-2.x (Noble)**.
 - Kernel base moved from the personal fork `iprjkt/evernight-gki` to the official Google ACK
   `android12-5.10-lts` (5.10.272). The tanzanite defconfig and device tree now live in
   `kernel-overlay/` and are applied by `scripts/apply_kernel_overlay.sh`.
+- Builds use a **prebuilt kernel object** by default: `scripts/build-all.sh` downloads it (a release
+  asset) and verifies its sha256 before injecting it, so a rebuild no longer recompiles the kernel.
+  `BUILD_KERNEL=1` compiles from source; `KERNEL_OBJ_DIR` reuses a local tree. The adaptation-tools
+  patch now also switches the dtbo tool to a Python 3 `mkdtboimg` (libufdt `android13-gsi`).
 
 Halium 12 is unchanged; the kernel stays on the 5.10 GKI line.
 

@@ -3,6 +3,9 @@
 /ota/
 /images/
 /workdir/
+/build/
+/build-workspace/
+/dist-prebuilt/
 /tanzanite-halium.zip
 
 # kernel build
