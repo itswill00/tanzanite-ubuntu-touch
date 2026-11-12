@@ -26,7 +26,17 @@ CHECK=0
 cd "$MODDIR"
 shopt -s nullglob
 ALL=( *.ko )
-[ ${#ALL[@]} -gt 0 ] || { echo "no .ko files in $MODDIR" >&2; exit 1; }
+if [ ${#ALL[@]} -eq 0 ]; then
+    # Vendor .ko binaries are gitignored (*.ko in .gitignore), so a clean
+    # checkout legitimately has none. There is nothing to regenerate from, so
+    # do not fail the consistency check on a tree that never had the binaries.
+    if [ "$CHECK" -eq 1 ]; then
+        echo "no .ko files in $MODDIR - skipped (vendor binaries are not tracked by git)"
+        exit 0
+    fi
+    echo "no .ko files in $MODDIR" >&2
+    exit 1
+fi
 
 # Strip .ko and index the full set.
 declare -A HAVE=()
