@@ -717,7 +717,7 @@ fun SwitcherContent(
                 insideMargin = PaddingValues(16.dp)
             ) {
                 Text(
-                    text = "Boot to Ubuntu Touch 20.04",
+                    text = "Boot to Ubuntu Touch 24.04",
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -1087,7 +1087,7 @@ fun AboutContent(
                 )
                 SuperArrow(
                     title = "Base OS",
-                    summary = "Ubuntu Touch Focal 20.04 (Halium 12)",
+                    summary = "Ubuntu Touch Noble 24.04 (Halium 12)",
                     rightText = if (status.rootfsPresent) "Installed" else "Missing",
                     onClick = {}
                 )

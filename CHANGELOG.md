@@ -9,6 +9,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
 Artifacts are named `tanzanite-ut<UT>-halium<H>-v<version>-<date>-<commit>.zip`. Only the newest
 artifact is linked from the README; older ones remain under their release tags.
 
+## [1.2.0] — 2026-11-12
+
+Base OS upgrade from Ubuntu Touch 20.04 (Focal) to **24.04-2.x (Noble)**.
+
+### Changed
+
+- Base rootfs now tracks the latest Ubuntu Touch series, **24.04-2.x (Noble)**, from the official
+  `ubuntu-touch-rootfs/job/ubports%2F24.04-2.x` CI artifact (`lastStableBuild`).
+- OTA channel set to `24.04-2.x/arm64/android9plus/stable`. The `24.04/.../devel` form used upstream
+  does not exist in `system-image.ubports.com/channels.json`; this uses a valid channel.
+- Installer artifact naming `ut20.04` → `ut24.04`; docs, guides and switcher app updated.
+- Audio crash/SmartPA fixes curated from `iprjkt/tanzanite-halium` (libsixth spinlock patch,
+  libsndcardparser stub, `HYBRIS_LD_LIBRARY_PATH`, `aurisys_demo`).
+
+Halium 12 and the 5.10 GKI kernel are unchanged.
+
 ## [1.1.1] — 2026-10-30
 
 Hotfix from the first on-device test of 1.1.0. Torch and vibration verified working; audio did

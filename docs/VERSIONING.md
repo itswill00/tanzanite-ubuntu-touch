@@ -47,7 +47,7 @@ Every build produces three files in `dist/`:
 
 | File | Contents |
 | --- | --- |
-| `tanzanite-ut20.04-halium12-v1.1.0-20261029-18297c7.zip` | the installer |
+| `tanzanite-ut24.04-halium12-v1.2.0-20261112-xxxxxxxx.zip` | the installer |
 | `....zip.sha256` | checksum, in `sha256sum -c` format |
 | `....buildinfo` | size, checksum, versions, commit, build time, kernel, module count |
 
@@ -58,13 +58,13 @@ The zip carries `META-INF/tanzanite/build.prop`:
 ```
 tanzanite.build.version=1.1.0
 tanzanite.build.device=tanzanite
-tanzanite.build.ut_release=ut20.04
+tanzanite.build.ut_release=ut24.04
 tanzanite.build.halium=halium12
 tanzanite.build.date=2026-10-29T05:00:00Z
 tanzanite.build.commit=18297c7
 tanzanite.build.kernel=5.10.269-EvernightKernel-1.1
 tanzanite.build.modules=385
-tanzanite.build.installer=tanzanite-ut20.04-halium12-v1.1.0-20261029-18297c7.zip
+tanzanite.build.installer=tanzanite-ut24.04-halium12-v1.2.0-20261112-xxxxxxxx.zip
 ```
 
 The installer copies it to `/data/ubuntu/etc/tanzanite-build.prop` and prints the version during

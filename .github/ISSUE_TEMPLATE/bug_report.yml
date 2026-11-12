@@ -15,7 +15,7 @@ body:
     attributes:
       label: Build version
       description: Output of `cat /etc/tanzanite-build.prop` (or the zip filename you flashed)
-      placeholder: "tanzanite.build.version=1.1.0 / tanzanite-ut20.04-halium12-v1.1.0-..."
+      placeholder: "tanzanite.build.version=1.2.0 / tanzanite-ut24.04-halium12-v1.2.0-..."
     validations:
       required: true
 

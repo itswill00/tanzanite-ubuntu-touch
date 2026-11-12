@@ -34,8 +34,8 @@ DEFCONFIG="tanzanite_defconfig"
 KERNEL_ARCH="arm64"
 KERNEL_LLVM_ARGS=(ARCH="$KERNEL_ARCH" LLVM=1 LLVM_IAS=1)
 
-ROOTFS_URL="${ROOTFS_URL:-https://ci.ubports.com/job/ubuntu-touch-rootfs/job/ubports%252Ffocal/lastSuccessfulBuild/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz}"
-OTA_CHANNEL="${OTA_CHANNEL:-20.04/arm64/android9plus/stable}"
+ROOTFS_URL="${ROOTFS_URL:-https://ci.ubports.com/job/ubuntu-touch-rootfs/job/ubports%252F24.04-2.x/lastStableBuild/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz}"
+OTA_CHANNEL="${OTA_CHANNEL:-24.04-2.x/arm64/android9plus/stable}"
 
 step() { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
 die()  { printf '\033[31m[-] %s\033[0m\n' "$*" >&2; exit 1; }

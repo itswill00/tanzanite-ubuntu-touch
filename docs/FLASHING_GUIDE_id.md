@@ -1,12 +1,12 @@
 # Tanzanite Halium 12 Panduan Flashing & Instalasi Dual-Boot
 
-> **Perangkat**: Redmi Note 14 4G (`tanzanite`, MediaTek Helio G99 MT6789), dual-boot HyperOS + Ubuntu Touch 20.04 (Halium 12), partisi `/data` ext4 tanpa enkripsi.
+> **Perangkat**: Redmi Note 14 4G (`tanzanite`, MediaTek Helio G99 MT6789), dual-boot HyperOS + Ubuntu Touch 24.04 (Halium 12), partisi `/data` ext4 tanpa enkripsi.
 > 
 > **Bahasa lain / Other languages**: [English (FLASHING_GUIDE_en.md)](FLASHING_GUIDE_en.md)
 
 ---
 
-Panduan langkah demi langkah untuk menginstal **Ubuntu Touch 20.04 (Focal Fossa)** secara dual-boot bersama **HyperOS / Android** pada **Redmi Note 14 4G (`tanzanite`)**.
+Panduan langkah demi langkah untuk menginstal **Ubuntu Touch 24.04 (Noble Numbat)** secara dual-boot bersama **HyperOS / Android** pada **Redmi Note 14 4G (`tanzanite`)**.
 
 ---
 

@@ -73,7 +73,7 @@ Rebuild it with \`./scripts/build_zip_local.sh\` (see \`docs/BUILD_NOTES.md\`).
 
 | Path | Size |
 | --- | --- |
-| \`ubuntu-touch-hybris-rootfs-arm64.tar.gz\` | UT Focal arm64 rootfs |
+| \`ubuntu-touch-hybris-rootfs-arm64.tar.gz\` | UT Noble arm64 rootfs |
 | \`halium_halium_arm64.tar.xz\` | Halium 12 GSI (contains android-rootfs.img) |
 | \`partitions/boot.img\` | Halium boot image, header v4 |
 | \`partitions/vendor_boot.img\` | Halium vendor_boot, header v4, carries ramdisk + dtb |

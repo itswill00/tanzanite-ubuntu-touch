@@ -101,8 +101,9 @@ mediatek-drm, ufs-mediatek-mod, etc.).
    `out/device_tanzanite.tar.xz` if you need them afterwards (they are byte-identical to what
    ends up in `images/`).
 
-3. **Upstream rootfs URL is dead.** `ci.ubports.com/job/focal-hybris-rootfs-arm64/...` returns 404.
-   Use `ci.ubports.com/job/ubuntu-touch-rootfs/job/ubports%252Ffocal/lastSuccessfulBuild/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz`.
+3. **Rootfs source.** Use the official Ubuntu Touch 24.04-2.x (Noble) artifact:
+   `ci.ubports.com/job/ubuntu-touch-rootfs/job/ubports%252F24.04-2.x/lastStableBuild/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz`
+   (the 20.04 `focal-hybris-rootfs-arm64` CI job is long dead).
 
 4. **`prepare-fake-ota.sh` prints `cp: cannot stat 'partitions/*'`** — harmless. The device tarball
    has no `partitions/` payload beyond the boot images already handled, and the script continues.

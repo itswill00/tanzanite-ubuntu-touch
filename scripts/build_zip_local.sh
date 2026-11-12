@@ -2,8 +2,8 @@
 # Builds the flashable recovery installer zip for tanzanite from locally built artifacts.
 #
 # Output naming:
-#   tanzanite-ut20.04-halium12-v<version>-<yyyymmdd>-<gitshort>.zip
-#     ut20.04      Ubuntu Touch rootfs release
+#   tanzanite-ut24.04-halium12-v<version>-<yyyymmdd>-<gitshort>.zip
+#     ut24.04      Ubuntu Touch rootfs release
 #     halium12     Halium version the vendor blobs are matched to
 #     v<version>   port version, from PORT_VERSION below
 #     yyyymmdd     build date (UTC)
@@ -14,11 +14,11 @@
 # Expects (relative to the repo root unless overridden by env):
 #   out/partitions/{boot.img,vendor_boot.img,dtbo.img}   from `./build.sh -b workdir`
 #   out/device_tanzanite.tar.xz
-#   ota/ubuntu-touch-android9plus-rootfs-arm64.tar.gz    UT Focal rootfs
+#   ota/ubuntu-touch-android9plus-rootfs-arm64.tar.gz    UT Noble rootfs
 #   ota/halium_halium_arm64.tar.xz                       Halium 12 GSI
 #
 # Usage: ./scripts/build_zip_local.sh
-#   PORT_VERSION=1.1.0 ./scripts/build_zip_local.sh    # override the version
+#   PORT_VERSION=1.2.0 ./scripts/build_zip_local.sh    # override the version
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -29,8 +29,8 @@ ROOTFS="${ROOTFS:-$ROOT/ota/ubuntu-touch-android9plus-rootfs-arm64.tar.gz}"
 GSI="${GSI:-$ROOT/ota/halium_halium_arm64.tar.xz}"
 
 # --- version metadata --------------------------------------------------------
-PORT_VERSION="${PORT_VERSION:-1.1.0}"
-UT_RELEASE="ut20.04"
+PORT_VERSION="${PORT_VERSION:-1.2.0}"
+UT_RELEASE="ut24.04"
 HALIUM_VERSION="halium12"
 BUILD_DATE="$(date -u +%Y%m%d)"
 BUILD_STAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -90,7 +90,7 @@ cp -f "$PART_DIR/dtbo.img"        "$STAGE/partitions/"
 echo "[*] Building device_tanzanite_system.tar.gz"
 (cd "$ROOT/overlay/system" && tar --numeric-owner --owner=0 --group=0 -czf "$STAGE/device_tanzanite_system.tar.gz" .)
 
-# Rootfs (Focal, ships libhybris) + Halium 12 GSI (contains android-rootfs.img)
+# Rootfs (Noble, ships libhybris) + Halium 12 GSI (contains android-rootfs.img)
 cp -f "$ROOTFS" "$STAGE/ubuntu-touch-hybris-rootfs-arm64.tar.gz"
 cp -f "$GSI"    "$STAGE/halium_halium_arm64.tar.xz"
 cp -f "$OUT_DIR/device_tanzanite.tar.xz" "$STAGE/device_tanzanite.tar.xz"

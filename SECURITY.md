@@ -68,7 +68,7 @@ Be clear-eyed about the threat model:
   access can flash anything. That is inherent to installing a custom OS, not a bug in this port.
 - **The vendor binaries are unauditable.** They run with high privilege in the Android container.
 - **There is no secure boot chain.** The port intentionally breaks it.
-- **Ubuntu Touch 20.04 is past standard support.** Security updates come from UBports, on their
-  schedule, not Canonical's.
+- **Ubuntu Touch 24.04 (Noble) is a supported UBports release.** Security updates come from
+  UBports, on their schedule, not Canonical's.
 
 If you need a device whose boot chain you can trust, do not install this.

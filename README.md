@@ -1,10 +1,10 @@
-# Ubuntu Touch 20.04 for Redmi Note 14 4G (`tanzanite`)
+# Ubuntu Touch 24.04 (Noble) for Redmi Note 14 4G (`tanzanite`)
 
 <p align="center">
   <a href="https://github.com/itswill00/tanzanite-ubuntu-touch/releases/latest"><img src="https://img.shields.io/github/v/release/itswill00/tanzanite-ubuntu-touch?style=flat-square&label=release&color=77216F" alt="Latest release"></a>
   <a href="https://github.com/itswill00/tanzanite-ubuntu-touch/actions/workflows/validate.yml"><img src="https://img.shields.io/github/actions/workflow/status/itswill00/tanzanite-ubuntu-touch/validate.yml?branch=main&style=flat-square&label=validate" alt="Validation status"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/itswill00/tanzanite-ubuntu-touch?style=flat-square&color=blue" alt="License"></a>
-  <img src="https://img.shields.io/badge/Ubuntu%20Touch-20.04-E95420?style=flat-square&logo=ubuntu&logoColor=white" alt="Ubuntu Touch 20.04">
+  <img src="https://img.shields.io/badge/Ubuntu%20Touch-24.04-E95420?style=flat-square&logo=ubuntu&logoColor=white" alt="Ubuntu Touch 24.04">
   <img src="https://img.shields.io/badge/Halium-12-4E9A06?style=flat-square" alt="Halium 12">
   <img src="https://img.shields.io/badge/device-Redmi%20Note%2014%204G-FF6900?style=flat-square&logo=xiaomi&logoColor=white" alt="Redmi Note 14 4G">
   <img src="https://img.shields.io/badge/SoC-MT6789-8E44AD?style=flat-square" alt="MT6789">
@@ -18,7 +18,7 @@
   <a href="https://github.com/itswill00/tanzanite-ubuntu-touch/releases"><img src="https://img.shields.io/github/downloads/itswill00/tanzanite-ubuntu-touch/total?style=flat-square&label=downloads" alt="Downloads"></a>
 </p>
 
-Build recipe + reproducible tooling for **Ubuntu Touch 20.04 (Focal Fossa) / Halium 12** on the
+Build recipe + reproducible tooling for **Ubuntu Touch 24.04 (Noble Numbat) / Halium 12** on the
 **Xiaomi Redmi Note 14 4G** (`tanzanite`, MediaTek Helio G99 / MT6789).
 
 This repository contains everything needed to build the port **from zero** on a Linux host:
@@ -79,7 +79,7 @@ An Ubuntu Touch port is three separate artifacts:
 
 ```
 boot.img / vendor_boot.img   <- your kernel + Halium initramfs        (built here)
-system.img / rootfs.img      <- Ubuntu Touch rootfs (Focal)          (assembled here)
+system.img / rootfs.img      <- Ubuntu Touch rootfs (Noble)          (assembled here)
                                  + Halium GSI (android-rootfs.img)   (downloaded, not built)
                                  + device overlay                    (this repo)
 ```
@@ -95,7 +95,7 @@ Version pairing is fixed by the device's vendor blobs:
 | --- | --- | --- |
 | Android vendor base | 12 | stock HyperOS `OS2.0.214.0.VOGEUXM` |
 | Halium | 12 | `deviceinfo_halium_version="12"` |
-| Ubuntu Touch rootfs | 20.04 Focal | channel `20.04/arm64/android9plus/stable` |
+| Ubuntu Touch rootfs | 24.04-2.x Noble | channel `24.04-2.x/arm64/android9plus/stable` |
 | Kernel | 5.10.269 GKI | EvernightKernel, AppArmor + ThinLTO + CFI |
 | Boot image header | v4 | GKI device, `vendor_boot` carries the ramdisk + dtb |
 
@@ -189,8 +189,8 @@ This produces `boot.img`, `vendor_boot.img`, `dtbo.img` and `device_tanzanite.ta
 Only needed if you want `rootfs.img` / `system.img` instead of the recovery installer:
 
 ```bash
-export ROOTFS_URL="https://ci.ubports.com/job/ubuntu-touch-rootfs/job/ubports%252Ffocal/lastSuccessfulBuild/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz"
-export OTA_CHANNEL="20.04/arm64/android9plus/stable"
+export ROOTFS_URL="https://ci.ubports.com/job/ubuntu-touch-rootfs/job/ubports%252F24.04-2.x/lastStableBuild/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz"
+export OTA_CHANNEL="24.04-2.x/arm64/android9plus/stable"
 ./build/prepare-fake-ota.sh out/device_tanzanite_usrmerge.tar.xz ota
 ./build/system-image-from-ota.sh ota/ubuntu_command images
 ```
@@ -342,10 +342,10 @@ GKI sources.
    partition inside `super.img`. All 178 have been recovered from official firmware and are now
    shipped, bringing the total to 385. See [`docs/MODULE_AUDIT.md`](docs/MODULE_AUDIT.md).
 
-3. **Rootfs URL drift.** The CI job the upstream port references
-   (`focal-hybris-rootfs-arm64`) now returns 404. This build uses the official
-   `ubuntu-touch-rootfs/job/ubports/focal` artifact, which does ship libhybris (75 `libhybris*`
-   entries) and is what the installer expects.
+3. **Rootfs version.** This build tracks the latest Ubuntu Touch release series,
+   **24.04-2.x (Noble)**, using the official
+   `ubuntu-touch-rootfs/job/ubports%2F24.04-2.x` artifact, which ships libhybris and is what the
+   installer expects. Override `ROOTFS_URL` / `OTA_CHANNEL` to pin 24.04-1.x or 20.04 instead.
 
 4. **`mkdtboimg.py` from `libufdt` branch `pie-gsi` is Python 2 only.** It fails on `xrange` and
    `array('c', str)`. Use the `lineage-21.0` version, which is Python 3 native.
@@ -377,7 +377,7 @@ phone. All three run in CI on every push.
 ## Versioning
 
 Port version is in [`VERSION`](VERSION). Artifacts are named
-`tanzanite-ut20.04-halium12-v<version>-<yyyymmdd>-<commit>.zip` and every build writes a
+`tanzanite-ut24.04-halium12-v<version>-<yyyymmdd>-<commit>.zip` and every build writes a
 `.sha256` and a `.buildinfo` alongside it, plus a `META-INF/tanzanite/build.prop` manifest inside
 the zip that the installer records at `/data/ubuntu/etc/tanzanite-build.prop`. Scheme, bump rules
 and release checklist: [`docs/VERSIONING.md`](docs/VERSIONING.md).

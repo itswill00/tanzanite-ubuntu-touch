@@ -1,6 +1,6 @@
 # Troubleshooting: `/sdcard` & bootloop HyperOS, `apt install` di Ubuntu Touch
 
-> Device: Xiaomi Redmi Note 14 4G (`tanzanite`, MT6789), dual-boot HyperOS + Ubuntu Touch 20.04 (Halium 12), `/data` ext4 tanpa enkripsi.
+> Device: Xiaomi Redmi Note 14 4G (`tanzanite`, MT6789), dual-boot HyperOS + Ubuntu Touch 24.04 (Halium 12), `/data` ext4 tanpa enkripsi.
 > Kernel: `5.10.269-ColumbinaKernel` (KernelSU).
 
 - [Bahasa Indonesia](#bahasa-indonesia)

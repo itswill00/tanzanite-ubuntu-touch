@@ -34,7 +34,7 @@ if [ -L /etc/systemd/system/biometryd.service ]; then
     systemctl daemon-reload
     systemctl start biometryd
 
-    # Make sure it's also gone from the base rootfs in case of 20.04 delta update potentially not removing it
+    # Make sure it's also gone from the base rootfs in case a rootfs delta update potentially not removing it
     mkdir /tmp/rootfs
     mount --bind / /tmp/rootfs
     mount -o remount,rw /tmp/rootfs

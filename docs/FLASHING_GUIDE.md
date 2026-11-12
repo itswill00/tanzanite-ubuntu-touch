@@ -1,6 +1,6 @@
 # Tanzanite Halium 12 Dual-Boot Flashing Guide
 
-> Device: Redmi Note 14 4G (`tanzanite`, MediaTek Helio G99 MT6789), dual-boot HyperOS + Ubuntu Touch 20.04 (Halium 12).
+> Device: Redmi Note 14 4G (`tanzanite`, MediaTek Helio G99 MT6789), dual-boot HyperOS + Ubuntu Touch 24.04 (Halium 12).
 
 Please select your preferred language / Silakan pilih bahasa panduan:
 
