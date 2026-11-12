@@ -1,3 +1,7 @@
+# GitLab CI pipeline (includes UBports gsi-port-ci.yml) for the flashable
+# super.img build. This repository is developed on GitHub, where
+# .github/workflows/validate.yml runs the checks; keep this file as the recipe
+# for the super.img path, which GitHub Actions does not cover.
 include:
   - https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools/-/raw/main/gsi-port-ci.yml
 
