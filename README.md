@@ -234,7 +234,7 @@ and are not part of the recovery installer path.
 | `boot.img` | 67,108,864 B | header v4, AVB hash footer |
 | `vendor_boot.img` | 67,108,864 B | header v4, kernel@`0x40000000`, ramdisk@`0x66f00000`, tags/dtb@`0x47c80000` |
 | `device_tanzanite.tar.xz` | 31,864,824 B | device tarball (overlay store mode) |
-| `tanzanite-ut24.04-halium12-v1.2.0-*.zip` | 1,179,271,868 B | recovery installer |
+| `tanzanite-ut24.04-halium12-v1.2.0-*.zip` | 1,179,273,476 B | recovery installer |
 
 Verified: `md5sum` of `boot.img`, `vendor_boot.img` and `dtbo.img` inside the zip are **identical**
 to those in `device_tanzanite.tar.xz`, so the installer ships the kernel built from this recipe.

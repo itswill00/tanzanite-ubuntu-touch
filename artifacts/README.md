@@ -6,10 +6,10 @@ Binaries are **not** stored in git. This directory holds only checksums and poin
 
 | Field | Value |
 | --- | --- |
-| File | `tanzanite-ut24.04-halium12-v1.2.0-20261112-dd7e322.zip` |
-| Size | 1179271868 bytes (1125 MiB) |
-| SHA-256 | `2c6d81b7b64e282792035c8efb3dda9f41f2b5c9101b935251f3e00f0baf3392` |
-| MD5 | `585671dfed5f7c67ddf60b8b222f185f` |
+| File | `tanzanite-ut24.04-halium12-v1.2.0-20261112-8930898.zip` |
+| Size | 1179273476 bytes (1125 MiB) |
+| SHA-256 | `b906dd53a3e0e143e702df78d72489288cc2c07e3ce5756169d15324836a3b1c` |
+| MD5 | `0b6ea83b9abbccdecc0320547f84ccf5` |
 | Download | https://github.com/itswill00/tanzanite-ubuntu-touch/releases/tag/v1.2.0 |
 
 The v1.1.1 and v1.1.0 builds and their checksums remain recorded under their own
